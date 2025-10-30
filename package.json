@@ -1,0 +1,23 @@
+{
+  "name": "proyecto_app_recetas",
+  "version": "1.0.0",
+  "description": "LET US COOK",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/FranMejiasGlez/PROYECTO_APP_RECETAS.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/FranMejiasGlez/PROYECTO_APP_RECETAS/issues"
+  },
+  "homepage": "https://github.com/FranMejiasGlez/PROYECTO_APP_RECETAS#readme",
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
