@@ -1,202 +1,232 @@
-import 'dart:io';
-
+import 'package:device_preview/device_preview.dart';
+import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/services.dart';
 
-void main() => runApp(MiAplicacion());
+//void main() => runApp(MiAplicacion());
+void main() => runApp(
+  DevicePreview(
+    enabled: !kReleaseMode,
+    builder: (context) => _MiAplicacion(), // Wrap your app
+  ),
+);
 
-class MiAplicacion extends StatelessWidget {
+class _MiAplicacion extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(title: 'MIGAZ', home: Login());
+    return MaterialApp(
+      locale: DevicePreview.locale(context),
+      builder: DevicePreview.appBuilder,
+      theme: ThemeData.light(),
+      darkTheme: ThemeData.dark(),
+      home: _Login(),
+    );
   }
 }
 
 // --- Pantalla Principal Login ---
-class Login extends StatelessWidget {
+class _Login extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      //appBar: AppBar(title: const Text('Pantalla Principal')),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topLeft,
             end: Alignment(0.8, 1),
-            /* colors: <Color>[
-              Color(0xFF25CCAD),
-              Color(0xFFFEC601),
-              Color(0x1AF7F7F7),
-              Color(0xFFEA7317),
-              Color(0xFF4F5D75),
-            ],*/
             colors: <Color>[
-              //  Color(0xFFF7F7F7),
               Color(0xFF25CCAD),
               Color(0xFFFEC601),
               Color(0xFFEA7317),
-              //   Color(0xFFF7F7F7),
             ],
           ),
         ),
-        padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                children: [
-                  Container(
-                    width: 200,
-                    height: 200,
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: NetworkImage(
-                          'https://raw.githubusercontent.com/FranMejiasGlez/TallerFlutter/main/sandbox_fran/imperativo/img/Logo.png',
-                        ),
-                        fit: BoxFit.cover,
-                      ),
-                    ),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(20.0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - 40, // Restar padding
                   ),
-                  Container(
-                    child: Center(
-                      child: Text(
-                        "Bienvenido a Migaz. Preparado para cocinar?",
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 80),
-                    child: Center(
-                      child: Text(
-                        "Iniciar Sesion",
-                        style: TextStyle(fontSize: 35),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    width: 500,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text("E-mail", style: TextStyle(fontSize: 20)),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                    color: Colors.grey,
-                    width: 500,
-                    child: TextField(
-                      decoration: InputDecoration(border: InputBorder.none),
-                    ),
-                  ),
-                  Container(
-                    width: 500,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text("Contraseña", style: TextStyle(fontSize: 20)),
-                      ],
-                    ),
-                  ),
-                  Container(
-                    color: Colors.grey,
-                    width: 500,
-                    child: TextField(
-                      decoration: InputDecoration(border: InputBorder.none),
-                    ),
-                  ),
-                  Container(
+                  child: IntrinsicHeight(
                     child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        Row(
-                          children: [
-                            Column(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) => PantallaLogin(),
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(
-                                      0xFFEA7317,
-                                    ), // Color de fondo
-                                    foregroundColor:
-                                        Colors.white, // Color del texto
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 15,
-                                      vertical: 10,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        12,
-                                      ), // Bordes redondeados
-                                    ),
-                                    elevation: 5, // Sombra
-                                    textStyle: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  child: const Text('Log in'),
-                                ),
-                              ],
+                        // Logo - Flexible
+                        Flexible(
+                          flex: 2,
+                          child: Container(
+                            constraints: BoxConstraints(
+                              maxWidth: 150,
+                              maxHeight: 150,
+                              minHeight: 100,
                             ),
-                            Column(
-                              children: [
-                                ElevatedButton(
-                                  onPressed: () {
-                                    Navigator.push(
-                                      context,
-                                      MaterialPageRoute(
-                                        builder: (context) =>
-                                            PantallaRegistro(),
-                                      ),
-                                    );
-                                  },
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Color(
-                                      0xFFEA7317,
-                                    ), // Color de fondo
-                                    foregroundColor:
-                                        Colors.white, // Color del texto
-                                    padding: EdgeInsets.symmetric(
-                                      horizontal: 15,
-                                      vertical: 10,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(
-                                        12,
-                                      ), // Bordes redondeados
-                                    ),
-                                    elevation: 5, // Sombra
-                                    textStyle: TextStyle(
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                  child: const Text('Registrate'),
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                  'https://raw.githubusercontent.com/FranMejiasGlez/TallerFlutter/main/sandbox_fran/imperativo/img/Logo.png',
                                 ),
-                              ],
+                                fit: BoxFit.cover,
+                              ),
                             ),
-                          ],
+                          ),
+                        ),
+
+                        SizedBox(height: 12),
+
+                        // Texto descriptivo
+                        Text(
+                          "Bienvenido a Migaz. ¿Preparado para cocinar?",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+
+                        SizedBox(height: 12),
+
+                        // Título
+                        Text(
+                          "Iniciar Sesión",
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        SizedBox(height: 20),
+
+                        // Formulario
+                        Container(
+                          constraints: BoxConstraints(maxWidth: 500),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // E-mail
+                              Text(
+                                "E-mail",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Container(
+                                color: Colors.grey[300],
+                                child: TextField(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 12),
+
+                              // Contraseña
+                              Text(
+                                "Contraseña",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Container(
+                                color: Colors.grey[300],
+                                child: TextField(
+                                  obscureText: true,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+
+                              // Botones
+                              Row(
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceEvenly,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              _PantallaLogin(),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xFFFEC601),
+                                      foregroundColor: Colors.black,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 15,
+                                        vertical: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      elevation: 5,
+                                      textStyle: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    child: const Text('Log in'),
+                                  ),
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              _PantallaRegistro(),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xFFFEC601),
+                                      foregroundColor: Colors.black,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 15,
+                                        vertical: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      elevation: 5,
+                                      textStyle: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    child: const Text('Regístrate'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ],
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -204,164 +234,420 @@ class Login extends StatelessWidget {
   }
 }
 
-// --- Segunda Pantalla ---
-class PantallaRegistro extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      //appBar: AppBar(title: const Text('Pantalla Principal')),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment(0.8, 1),
-            /*colors: <Color>[
-              Color(0xFF25CCAD),
-              Color(0xFFFEC601),
-              Color(0x1AF7F7F7),
-              Color(0xFFEA7317),
-              Color(0xFF4F5D75),
-            ],*/
-            colors: <Color>[
-              //  Color(0xFFF7F7F7),
-              Color(0xFF25CCAD),
-              Color(0xFFFEC601),
-              Color(0xFFEA7317),
-              //   Color(0xFFF7F7F7),
-            ],
-          ),
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    body: Container(
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          begin: Alignment.topLeft,
+          end: Alignment(0.8, 1),
+          colors: <Color>[
+            Color(0xFF25CCAD),
+            Color(0xFFFEC601),
+            Color(0xFFEA7317),
+          ],
         ),
-        padding: const EdgeInsets.all(20.0),
-        child: Center(
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              Column(
-                children: [
-                  Container(
-                    width: 200,
-                    height: 200,
-                    padding: EdgeInsets.all(8),
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      image: DecorationImage(
-                        image: NetworkImage(
-                          'https://raw.githubusercontent.com/FranMejiasGlez/TallerFlutter/main/sandbox_fran/imperativo/img/Logo.png',
-                        ),
-                        fit: BoxFit.cover,
-                      ),
+      ),
+      padding: const EdgeInsets.all(20.0),
+      child: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            // Logo - Flexible para que se ajuste
+            Flexible(
+              flex: 3,
+              child: Container(
+                constraints: BoxConstraints(maxWidth: 200, maxHeight: 200),
+                padding: EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  image: DecorationImage(
+                    image: NetworkImage(
+                      'https://raw.githubusercontent.com/FranMejiasGlez/TallerFlutter/main/sandbox_fran/imperativo/img/Logo.png',
                     ),
+                    fit: BoxFit.cover,
                   ),
-                  Container(
-                    child: Center(
-                      child: Text(
-                        "Regístrate en Migaz y empieza a cocinar. ¡Es rápido y fácil!",
-                        style: TextStyle(fontSize: 18),
-                      ),
-                    ),
-                  ),
-                  Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 80),
-                    child: Center(
-                      child: Text("Registrate", style: TextStyle(fontSize: 35)),
-                    ),
-                  ),
-                  Container(
-                    width: 500,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+                ),
+              ),
+            ),
+
+            // Texto descriptivo
+            Flexible(
+              flex: 1,
+              child: Center(
+                child: Text(
+                  "Bienvenido a Migaz. ¿Preparado para cocinar?",
+                  style: TextStyle(fontSize: 30, fontWeight: FontWeight.bold),
+                  textAlign: TextAlign.center,
+                ),
+              ),
+            ),
+
+            // Título
+            Padding(
+              padding: EdgeInsets.symmetric(vertical: 8),
+              child: Text(
+                "Iniciar Sesión",
+                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold),
+              ),
+            ),
+
+            // Formulario - Expanded para ocupar espacio restante
+            Expanded(
+              flex: 4,
+              child: Container(
+                constraints: BoxConstraints(maxWidth: 500),
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    // E-mail
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
                         Text(
-                          "Nombre de usuario",
-                          style: TextStyle(fontSize: 20),
+                          "E-mail",
+                          style: TextStyle(
+                            fontSize: 16,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Container(
+                          color: Colors.grey[300],
+                          child: TextField(
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              isDense: true,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  //BOX del TextField de email
-                  Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                    color: Colors.grey,
-                    width: 500,
-                    child: TextField(
-                      decoration: InputDecoration(border: InputBorder.none),
-                    ),
-                  ),
-                  Container(
-                    width: 500,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
+
+                    // Contraseña
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      mainAxisSize: MainAxisSize.min,
                       children: [
-                        Text("E-mail", style: TextStyle(fontSize: 20)),
-                      ],
-                    ),
-                  ),
-                  //BOX del TextField de email
-                  Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                    color: Colors.grey,
-                    width: 500,
-                    child: TextField(
-                      decoration: InputDecoration(border: InputBorder.none),
-                    ),
-                  ),
-                  Container(
-                    width: 500,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text("Contraseña", style: TextStyle(fontSize: 20)),
-                      ],
-                    ),
-                  ),
-                  //BOX del TextField de contraseña
-                  Container(
-                    color: Colors.grey,
-                    width: 500,
-                    child: TextField(
-                      decoration: InputDecoration(border: InputBorder.none),
-                    ),
-                  ),
-                  Container(
-                    width: 500,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: [
-                        Text(
-                          "Confirmar contraseña",
-                          style: TextStyle(fontSize: 20),
+                        Text("Contraseña", style: TextStyle(fontSize: 18)),
+                        SizedBox(height: 4),
+                        Container(
+                          color: Colors.grey[300],
+                          child: TextField(
+                            obscureText: true,
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              contentPadding: EdgeInsets.symmetric(
+                                horizontal: 12,
+                                vertical: 8,
+                              ),
+                              isDense: true,
+                            ),
+                          ),
                         ),
                       ],
                     ),
-                  ),
-                  //BOX del TextField de email
-                  Container(
-                    margin: EdgeInsets.fromLTRB(0, 0, 0, 20),
-                    color: Colors.grey,
-                    width: 500,
-                    child: TextField(
-                      decoration: InputDecoration(border: InputBorder.none),
-                    ),
-                  ),
-                  Container(
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.end,
+
+                    // Botones
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.spaceEvenly,
                       children: [
                         ElevatedButton(
                           onPressed: () {
                             Navigator.push(
                               context,
-                              MaterialPageRoute(builder: (context) => Login()),
+                              MaterialPageRoute(
+                                builder: (context) => _PantallaLogin(),
+                              ),
                             );
                           },
-                          child: const Text('Registrarse'),
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFFEA7317),
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 5,
+                            textStyle: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          child: const Text('Log in'),
+                        ),
+                        ElevatedButton(
+                          onPressed: () {
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => _PantallaRegistro(),
+                              ),
+                            );
+                          },
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFFEA7317),
+                            foregroundColor: Color.fromARGB(255, 0, 0, 0),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 15,
+                              vertical: 10,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 5,
+                            textStyle: TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          child: const Text('Regístrate'),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    ),
+  );
+}
+
+// --- Segunda Pantalla ---
+class _PantallaRegistro extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topLeft,
+            end: Alignment(0.8, 1),
+            colors: <Color>[
+              Color(0xFF25CCAD),
+              Color(0xFFFEC601),
+              Color(0xFFEA7317),
+            ],
+          ),
+        ),
+        child: SafeArea(
+          child: LayoutBuilder(
+            builder: (context, constraints) {
+              return SingleChildScrollView(
+                padding: const EdgeInsets.all(20.0),
+                child: ConstrainedBox(
+                  constraints: BoxConstraints(
+                    minHeight: constraints.maxHeight - 40, // Restar padding
+                  ),
+                  child: IntrinsicHeight(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        // Logo - Flexible
+                        Flexible(
+                          flex: 2,
+                          child: Container(
+                            constraints: BoxConstraints(
+                              maxWidth: 150,
+                              maxHeight: 150,
+                              minHeight: 100,
+                            ),
+                            padding: EdgeInsets.all(8),
+                            decoration: BoxDecoration(
+                              shape: BoxShape.circle,
+                              image: DecorationImage(
+                                image: NetworkImage(
+                                  'https://raw.githubusercontent.com/FranMejiasGlez/TallerFlutter/main/sandbox_fran/imperativo/img/Logo.png',
+                                ),
+                                fit: BoxFit.cover,
+                              ),
+                            ),
+                          ),
+                        ),
+
+                        SizedBox(height: 12),
+
+                        // Texto descriptivo
+                        Text(
+                          "Regístrate en Migaz y empieza a cocinar. ¡Es rápido y fácil!",
+                          style: TextStyle(
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          textAlign: TextAlign.center,
+                        ),
+
+                        SizedBox(height: 12),
+
+                        // Título
+                        Text(
+                          "Regístrate",
+                          style: TextStyle(
+                            fontSize: 30,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+
+                        SizedBox(height: 20),
+
+                        // Formulario
+                        Container(
+                          constraints: BoxConstraints(maxWidth: 500),
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Nombre de usuario
+                              Text(
+                                "Nombre de usuario",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Container(
+                                color: Colors.grey[300],
+                                child: TextField(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 12),
+
+                              // E-mail
+                              Text(
+                                "E-mail",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Container(
+                                color: Colors.grey[300],
+                                child: TextField(
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 12),
+
+                              // Contraseña
+                              Text(
+                                "Contraseña",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Container(
+                                color: Colors.grey[300],
+                                child: TextField(
+                                  obscureText: true,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 12),
+
+                              // Confirmar contraseña
+                              Text(
+                                "Confirmar contraseña",
+                                style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.bold,
+                                ),
+                              ),
+                              SizedBox(height: 4),
+                              Container(
+                                color: Colors.grey[300],
+                                child: TextField(
+                                  obscureText: true,
+                                  decoration: InputDecoration(
+                                    border: InputBorder.none,
+                                    contentPadding: EdgeInsets.symmetric(
+                                      horizontal: 12,
+                                      vertical: 8,
+                                    ),
+                                    isDense: true,
+                                  ),
+                                ),
+                              ),
+                              SizedBox(height: 20),
+
+                              // Botón
+                              Row(
+                                mainAxisAlignment: MainAxisAlignment.end,
+                                children: [
+                                  ElevatedButton(
+                                    onPressed: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => _Login(),
+                                        ),
+                                      );
+                                    },
+                                    style: ElevatedButton.styleFrom(
+                                      backgroundColor: Color(0xFFFEC601),
+                                      foregroundColor: Colors.black,
+                                      padding: EdgeInsets.symmetric(
+                                        horizontal: 15,
+                                        vertical: 10,
+                                      ),
+                                      shape: RoundedRectangleBorder(
+                                        borderRadius: BorderRadius.circular(12),
+                                      ),
+                                      elevation: 5,
+                                      textStyle: TextStyle(
+                                        fontSize: 16,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                    child: const Text('Registrarse'),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
                         ),
                       ],
                     ),
                   ),
-                ],
-              ),
-            ],
+                ),
+              );
+            },
           ),
         ),
       ),
@@ -370,7 +656,7 @@ class PantallaRegistro extends StatelessWidget {
 }
 
 // --- Pantalla Principal App --
-class PantallaLogin extends StatelessWidget {
+class _PantallaLogin extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(appBar: AppBar(title: Text("log")));
   }
