@@ -127,6 +127,27 @@ class Login extends StatelessWidget {
                                       ),
                                     );
                                   },
+                                  style: ElevatedButton.styleFrom(
+                                    backgroundColor: Color(
+                                      0xFFEA7317,
+                                    ), // Color de fondo
+                                    foregroundColor:
+                                        Colors.white, // Color del texto
+                                    padding: EdgeInsets.symmetric(
+                                      horizontal: 15,
+                                      vertical: 10,
+                                    ),
+                                    shape: RoundedRectangleBorder(
+                                      borderRadius: BorderRadius.circular(
+                                        12,
+                                      ), // Bordes redondeados
+                                    ),
+                                    elevation: 5, // Sombra
+                                    textStyle: TextStyle(
+                                      fontSize: 18,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
                                   child: const Text('Log in'),
                                 ),
                               ],
