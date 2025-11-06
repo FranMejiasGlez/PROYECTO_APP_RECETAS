@@ -1,3 +1,4 @@
+import 'package:app_recetas/pantallaRecetas.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -575,17 +576,6 @@ class _PantallaRegistro extends StatelessWidget {
 class _PantallaLogin extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text("Pantalla Principal"),
-        backgroundColor: Color(0xFF25CCAD),
-      ),
-      body: Center(
-        child: Text(
-          "Has iniciado sesión correctamente",
-          style: TextStyle(fontSize: 24),
-        ),
-      ),
-    );
+    return Pantallarecetas();
   }
 }
