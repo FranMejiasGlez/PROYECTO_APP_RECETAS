@@ -5,52 +5,70 @@ class Pantallarecetas extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.deepPurple,
       body: Column(
         children: [
           Expanded(
             child: Container(
-              height: 250,
               color: Colors.blue,
+
               child: Row(
-                mainAxisAlignment: MainAxisAlignment.start,
                 children: [
-                  Padding(padding: EdgeInsets.all(60)),
-                  ElevatedButton(
-                    onPressed: () {},
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: Color(0xFFFEC601),
-                      foregroundColor: Colors.black,
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 12,
-                      ),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      elevation: 5,
-                      textStyle: TextStyle(
-                        fontSize: 14,
-                        fontWeight: FontWeight.bold,
+                  // Botón a la izquierda
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerLeft,
+                      child: Padding(
+                        padding: const EdgeInsets.only(left: 16.0),
+                        child: ElevatedButton(
+                          onPressed: () {},
+                          style: ElevatedButton.styleFrom(
+                            backgroundColor: Color(0xFFFEC601),
+                            foregroundColor: Colors.black,
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 20,
+                              vertical: 12,
+                            ),
+                            shape: RoundedRectangleBorder(
+                              borderRadius: BorderRadius.circular(12),
+                            ),
+                            elevation: 5,
+                            textStyle: TextStyle(
+                              fontSize: 14,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          child: const Text('Izquierda'),
+                        ),
                       ),
                     ),
-                    child: const Text('Biblioteca'),
                   ),
-                  Text('Nombre Usuario'), //TODO: REEMPLAZAR POR VARIABLE
-                  Icon(Icons.person, size: 100), //TODO: REEMPLAZAR POR VARIABLE
+                  //Nombre de usuario
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Text('Nombre Usuario'),
+                    ),
+                  ),
+                  //Icono de foto de perfil
+                  Expanded(
+                    child: Align(
+                      alignment: Alignment.centerRight,
+                      child: Padding(
+                        padding: const EdgeInsets.only(right: 16.0),
+                        child: Icon(Icons.person,size: 80,),
+                      ),
+                    ),
+                  ),
                 ],
               ),
             ),
           ),
           Expanded(
-            child: Container(
-              height: 500,
-              color: const Color.fromARGB(255, 240, 184, 3),
-            ),
+            child: Container(color: const Color.fromARGB(255, 240, 184, 3)),
           ),
-          Expanded(child: Container(height: 500, color: Colors.white)),
-          Expanded(child: Container(height: 500, color: Colors.red)),
-          Expanded(child: Container(height: 500, color: Colors.black)),
+          Expanded(child: Container(color: Colors.white)),
+          Expanded(child: Container(color: Colors.red)),
+          Expanded(child: Container(color: Colors.black)),
         ],
       ),
     );
