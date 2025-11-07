@@ -2,8 +2,11 @@
   "name": "proyecto_app_recetas",
   "version": "1.0.0",
   "description": "LET US COOK",
-  "main": "index.js",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
@@ -18,6 +21,13 @@
   },
   "homepage": "https://github.com/FranMejiasGlez/PROYECTO_APP_RECETAS#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "cors": "^2.8.5",
+    "dotenv": "^17.2.3",
+    "express": "^5.1.0",
+    "firebase": "^12.5.0",
+    "firebase-admin": "^13.6.0"
+  },
+  "devDependencies": {
+    "nodemon": "^3.1.10"
   }
 }
