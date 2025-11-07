@@ -2,8 +2,8 @@ import 'package:app_recetas/pantallaRecetas.dart';
 import 'package:device_preview/device_preview.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
-
-void main() => runApp(
+//!Para correr el device preview
+/*void main() => runApp(
   DevicePreview(enabled: !kReleaseMode, builder: (context) => _MiAplicacion()),
 );
 
@@ -15,6 +15,18 @@ class _MiAplicacion extends StatelessWidget {
       builder: DevicePreview.appBuilder,
       home: _Login(),
     );
+  }
+}
+*/
+//!Para NO correr el device preview
+void main() {
+  runApp(_MiAplicacion());
+}
+
+class _MiAplicacion extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    return MaterialApp(home: _Login());
   }
 }
 
