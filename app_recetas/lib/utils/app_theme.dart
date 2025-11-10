@@ -26,10 +26,7 @@ class AppTheme {
             borderRadius: BorderRadius.circular(12),
           ),
           elevation: 5,
-          textStyle: const TextStyle(
-            fontSize: 14,
-            fontWeight: FontWeight.bold,
-          ),
+          textStyle: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
         ),
       ),
     );
