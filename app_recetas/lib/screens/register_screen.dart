@@ -105,6 +105,18 @@ class RegisterScreen extends StatelessWidget {
               onPressed: () {
                 Navigator.pushReplacementNamed(context, AppRoutes.login);
               },
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFEC601),
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 5,
+              ),
               child: const Text('Registrarse'),
             ),
           ],
