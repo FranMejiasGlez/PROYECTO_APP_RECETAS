@@ -18,6 +18,7 @@
   },
   "homepage": "https://github.com/FranMejiasGlez/PROYECTO_APP_RECETAS#readme",
   "dependencies": {
-    "express": "^5.1.0"
+    "express": "^5.1.0",
+    "mongodb": "^7.0.0"
   }
 }
