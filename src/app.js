@@ -1,6 +1,4 @@
-// -------------------------------
-// Configuración de Express
-// -------------------------------
+
 
 import express from "express";
 import cors from "cors";
