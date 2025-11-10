@@ -1,29 +1,27 @@
-// -------------------------------
-// Configuración de Firebase Admin
-// usando variables de entorno (.env)
-// -------------------------------
-
+// src/config/database.js
 import admin from "firebase-admin";
-import dotenv from "dotenv";
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
 
-// Carga las variables desde el archivo .env
-dotenv.config();
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
-// Inicializa la app de Firebase con credenciales del .env
+// 📍 El JSON está en src/serviceAccountKey.json
+const serviceAccountPath = path.resolve(__dirname, "../serviceAccountKey.json");
+
+console.log("🧭 Cargando credenciales desde:", serviceAccountPath);
+
+// ✅ Leemos y parseamos el JSON antes de pasarlo a Firebase
+const serviceAccount = JSON.parse(fs.readFileSync(serviceAccountPath, "utf8"));
+
+// Inicializamos Firebase correctamente con el objeto ya parseado
 admin.initializeApp({
-  credential: admin.credential.cert({
-    projectId: process.env.FIREBASE_PROJECT_ID,
-    clientEmail: process.env.FIREBASE_CLIENT_EMAIL,
-    // 🔹 Los saltos de línea (\n) en la clave privada deben reemplazarse
-    privateKey: process.env.FIREBASE_PRIVATE_KEY.replace(/\\n/g, "\n"),
-  }),
+  credential: admin.credential.cert(serviceAccount),
 });
 
-// Crea una instancia de Firestore
 const db = admin.firestore();
 
-// Mensaje de confirmación en consola
-console.log("✅ Conexión a Firestore inicializada correctamente (.env)");
+console.log(`✅ Firebase conectado correctamente al proyecto: ${serviceAccount.project_id}`);
 
-// Exporta la instancia para usarla en controladores, rutas, etc.
-export default db;
+export { db, admin };
