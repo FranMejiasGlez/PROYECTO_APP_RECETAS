@@ -1,60 +1,63 @@
-import 'dart:convert';
-
 class Recipe {
   final String nombre;
-  final String descripcion;
-  final List<String> ingredientes;
   final String categoria;
-  final String dificultad;
-  final List<String> pasos;
-  final String urlImagen;
-  final String urlYoutube;
-  final String tiempoPreparacion;
-  final String servings;
   final double valoracion;
+  final String descripcion;
+  final String dificultad;
+  final int servings;
+  final List<String> pasos;
+  final List<String> ingredientes;
+  final String? youtubeUrl;
+  final String? imageUrl;
 
   Recipe({
     required this.nombre,
-    required this.descripcion,
-    this.ingredientes = const [],
-    this.categoria = '',
-    this.dificultad = '',
-    this.pasos = const [],
-    this.urlImagen = '',
-    this.urlYoutube = '',
-    this.tiempoPreparacion = '',
-    this.servings = '',
+    required this.categoria,
     this.valoracion = 0.0,
-  });
+    this.descripcion = '',
+    this.dificultad = 'Todos los niveles',
+    this.servings = 1,
+    List<String>? pasos,
+    List<String>? ingredientes,
+    this.youtubeUrl,
+    this.imageUrl,
+  }) : pasos = pasos ?? const [],
+        ingredientes = ingredientes ?? const [];
 
-  Map<String, dynamic> toJson() => {
-    'nombre': nombre,
-    'descripcion': descripcion,
-    'ingredientes': ingredientes,
-    'categoria': categoria,
-    'dificultad': dificultad,
-    'pasos': pasos,
-    'urlImagen': urlImagen,
-    'urlYoutube': urlYoutube,
-    'tiempoPreparacion': tiempoPreparacion,
-    'servings': servings,
-    'valoracion': valoracion,
-  };
-
-  factory Recipe.fromJson(Map<String, dynamic> json) => Recipe(
-    nombre: json['nombre'] ?? '',
-    descripcion: json['descripcion'] ?? '',
-    ingredientes: List<String>.from(json['ingredientes'] ?? []),
-    categoria: json['categoria'] ?? '',
-    dificultad: json['dificultad'] ?? '',
-    pasos: List<String>.from(json['pasos'] ?? []),
-    urlImagen: json['urlImagen'] ?? '',
-    urlYoutube: json['urlYoutube'] ?? '',
-    tiempoPreparacion: json['tiempoPreparacion'] ?? '',
-    servings: json['servings'] ?? '',
-    valoracion: (json['valoracion'] ?? 0).toDouble(),
-  );
+  Map<String, dynamic> toMap() => {
+        'nombre': nombre,
+        'categoria': categoria,
+        'valoracion': valoracion,
+        'descripcion': descripcion,
+        'dificultad': dificultad,
+        'servings': servings,
+        'pasos': pasos,
+        'ingredientes': ingredientes,
+        'youtubeUrl': youtubeUrl,
+        'imageUrl': imageUrl,
+      };
 
   @override
-  String toString() => jsonEncode(toJson());
+  String toString() {
+    return 'Recipe(nombre: $nombre, categoria: $categoria, valoracion: $valoracion, servings: $servings, pasos:${pasos.length}, ingredientes:${ingredientes.length}, youtubeUrl:$youtubeUrl, imageUrl:$imageUrl)';
+  }
+
+  factory Recipe.fromMap(Map<String, dynamic> m) => Recipe(
+        nombre: m['nombre'] as String? ?? '',
+        categoria: m['categoria'] as String? ?? 'Otros',
+        valoracion: (m['valoracion'] is num)
+            ? (m['valoracion'] as num).toDouble()
+            : 0.0,
+        descripcion: m['descripcion'] as String? ?? '',
+        dificultad: m['dificultad'] as String? ?? 'Todos los niveles',
+        servings: (m['servings'] is int)
+            ? m['servings'] as int
+            : (m['servings'] is num ? (m['servings'] as num).toInt() : 1),
+        pasos: (m['pasos'] is List) ? List<String>.from(m['pasos']) : const [],
+        ingredientes: (m['ingredientes'] is List)
+            ? List<String>.from(m['ingredientes'])
+            : const [],
+        youtubeUrl: m['youtubeUrl'] as String?,
+        imageUrl: m['imageUrl'] as String?,
+      );
 }

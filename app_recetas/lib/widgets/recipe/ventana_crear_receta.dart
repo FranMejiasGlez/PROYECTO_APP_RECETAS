@@ -1,12 +1,8 @@
+import 'package:app_recetas/model/recipe.dart';
 import 'package:flutter/material.dart';
 
 class DialogoCrearReceta extends StatefulWidget {
-  // ahora onGuardar recibe también la lista de pasos
-
-  // lista de categorías permitidas (dominio cerrado)
   final List<String> categorias;
-
-  // lista de dificultades permitidas
   final List<String> dificultades;
 
   const DialogoCrearReceta({
@@ -20,263 +16,287 @@ class DialogoCrearReceta extends StatefulWidget {
 }
 
 class _DialogoCrearRecetaState extends State<DialogoCrearReceta> {
-  final _formKey = GlobalKey<FormState>();
   final TextEditingController _nombreController = TextEditingController();
   final TextEditingController _descripcionController = TextEditingController();
-  final TextEditingController _urlImagen = TextEditingController();
-  final TextEditingController _urlYoutube = TextEditingController();
-  final TextEditingController _tiempoPreparacion = TextEditingController();
-  final TextEditingController _servings = TextEditingController();
+  final TextEditingController _servingsController = TextEditingController(
+    text: '1',
+  );
 
-  // ingredientes
+  // Ingredientes y pasos (listas manejadas uno a uno)
+  final TextEditingController _ingredienteInputController =
+      TextEditingController();
   final List<String> _ingredientes = [];
-  final TextEditingController _ingredienteController = TextEditingController();
 
-  // pasos
+  final TextEditingController _pasoInputController = TextEditingController();
   final List<String> _pasos = [];
-  final TextEditingController _pasoController = TextEditingController();
 
-  // categoría y dificultad seleccionadas
-  String? _categoriaSeleccionada;
-  String? _dificultadSeleccionada;
+  final TextEditingController _youtubeController = TextEditingController();
+  final TextEditingController _imageController = TextEditingController();
+
+  String _categoriaSeleccionada = '';
+  String _dificultadSeleccionada = '';
+  double _valoracion = 0.0;
 
   @override
   void initState() {
     super.initState();
     _categoriaSeleccionada = widget.categorias.isNotEmpty
         ? widget.categorias.first
-        : null;
+        : 'Otros';
     _dificultadSeleccionada = widget.dificultades.isNotEmpty
         ? widget.dificultades.first
-        : null;
+        : 'Todos los niveles';
   }
 
   @override
   void dispose() {
     _nombreController.dispose();
     _descripcionController.dispose();
-    _urlImagen.dispose();
-    _urlYoutube.dispose();
-    _tiempoPreparacion.dispose();
-    _servings.dispose();
-    _ingredienteController.dispose();
-    _pasoController.dispose();
+    _servingsController.dispose();
+    _ingredienteInputController.dispose();
+    _pasoInputController.dispose();
+    _youtubeController.dispose();
+    _imageController.dispose();
     super.dispose();
   }
 
   void _agregarIngrediente() {
-    final text = _ingredienteController.text.trim();
+    final text = _ingredienteInputController.text.trim();
     if (text.isEmpty) return;
     setState(() {
       _ingredientes.add(text);
-      _ingredienteController.clear();
+      _ingredienteInputController.clear();
     });
   }
 
-  void _eliminarIngrediente(int index) {
-    setState(() {
-      _ingredientes.removeAt(index);
-    });
+  void _quitarIngrediente(int index) {
+    setState(() => _ingredientes.removeAt(index));
   }
 
   void _agregarPaso() {
-    final text = _pasoController.text.trim();
+    final text = _pasoInputController.text.trim();
     if (text.isEmpty) return;
     setState(() {
       _pasos.add(text);
-      _pasoController.clear();
+      _pasoInputController.clear();
     });
   }
 
-  void _eliminarPaso(int index) {
-    setState(() {
-      _pasos.removeAt(index);
-    });
+  void _quitarPaso(int index) {
+    setState(() => _pasos.removeAt(index));
+  }
+
+  void _onGuardar() {
+    final nombre = _nombreController.text.trim();
+    if (nombre.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Introduce un nombre para la receta')),
+      );
+      return;
+    }
+
+    final servings = int.tryParse(_servingsController.text.trim()) ?? 1;
+
+    final nueva = Recipe(
+      nombre: nombre,
+      categoria: _categoriaSeleccionada,
+      valoracion: _valoracion,
+      descripcion: _descripcionController.text.trim(),
+      dificultad: _dificultadSeleccionada,
+      servings: servings,
+      pasos: List<String>.from(_pasos),
+      ingredientes: List<String>.from(_ingredientes),
+      youtubeUrl: _youtubeController.text.trim().isEmpty
+          ? null
+          : _youtubeController.text.trim(),
+      imageUrl: _imageController.text.trim().isEmpty
+          ? null
+          : _imageController.text.trim(),
+    );
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Receta "${nueva.toString()}" creada')),
+    );
+    //print('Nueva receta creada: $nueva');
+    Navigator.of(context).pop(nueva);
   }
 
   @override
   Widget build(BuildContext context) {
-    // tamaño fijo pero adaptable a pantallas pequeñas
-    final double maxWidth = MediaQuery.of(context).size.width;
-    final double dialogWidth = maxWidth > 700 ? 700 : maxWidth * 0.95;
-    final double dialogHeight = MediaQuery.of(context).size.height * 0.7;
-
     return AlertDialog(
-      insetPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 24),
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-      content: SizedBox(
-        width: dialogWidth,
-        height: dialogHeight,
-        child: SingleChildScrollView(
-          child: Form(
-            key: _formKey,
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+      title: const Text('Crear nueva receta'),
+      content: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: _nombreController,
+              decoration: const InputDecoration(labelText: 'Nombre'),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: _categoriaSeleccionada,
+              items: widget.categorias
+                  .map((c) => DropdownMenuItem(value: c, child: Text(c)))
+                  .toList(),
+              onChanged: (v) => setState(
+                () => _categoriaSeleccionada = v ?? _categoriaSeleccionada,
+              ),
+              decoration: const InputDecoration(labelText: 'Categoría'),
+            ),
+            const SizedBox(height: 8),
+            DropdownButtonFormField<String>(
+              initialValue: _dificultadSeleccionada,
+              items: widget.dificultades
+                  .map((d) => DropdownMenuItem(value: d, child: Text(d)))
+                  .toList(),
+              onChanged: (v) => setState(
+                () => _dificultadSeleccionada = v ?? _dificultadSeleccionada,
+              ),
+              decoration: const InputDecoration(labelText: 'Dificultad'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _descripcionController,
+              decoration: const InputDecoration(labelText: 'Descripción'),
+              maxLines: 3,
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _servingsController,
+              keyboardType: TextInputType.number,
+              decoration: const InputDecoration(
+                labelText: 'Raciones (servings)',
+              ),
+            ),
+            const SizedBox(height: 12),
+
+            // Ingredientes: input + add button + chips list
+            Align(
+              alignment: Alignment.centerLeft,
+              child: const Text(
+                'Ingredientes',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Row(
               children: [
-                TextFormField(
-                  controller: _nombreController,
-                  decoration: const InputDecoration(
-                    labelText: "Nombre de la receta",
-                  ),
-                  validator: (value) => value == null || value.isEmpty
-                      ? "Introduce un nombre"
-                      : null,
-                ),
-                TextFormField(
-                  controller: _descripcionController,
-                  decoration: const InputDecoration(labelText: "Descripción"),
-                  validator: (value) => value == null || value.isEmpty
-                      ? "Introduce una descripción"
-                      : null,
-                ),
-                const SizedBox(height: 12),
-
-                // ingredientes
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _ingredienteController,
-                        decoration: const InputDecoration(
-                          labelText: 'Ingrediente',
-                          hintText: 'p. ej. 200g harina',
-                        ),
-                        onSubmitted: (_) => _agregarIngrediente(),
-                      ),
+                Expanded(
+                  child: TextField(
+                    controller: _ingredienteInputController,
+                    decoration: const InputDecoration(
+                      hintText: 'Añadir ingrediente',
                     ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: _agregarIngrediente,
-                      child: const Text('Añadir'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                if (_ingredientes.isNotEmpty)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Wrap(
-                      spacing: 8,
-                      runSpacing: 8,
-                      children: List.generate(_ingredientes.length, (index) {
-                        final ing = _ingredientes[index];
-                        return InputChip(
-                          label: Text(ing),
-                          onDeleted: () => _eliminarIngrediente(index),
-                        );
-                      }),
-                    ),
-                  ),
-
-                const SizedBox(height: 12),
-
-                // pasos (añadir uno a uno, numerados)
-                Row(
-                  children: [
-                    Expanded(
-                      child: TextField(
-                        controller: _pasoController,
-                        decoration: const InputDecoration(
-                          labelText: 'Paso',
-                          hintText: 'Describe el paso...',
-                        ),
-                        onSubmitted: (_) => _agregarPaso(),
-                      ),
-                    ),
-                    const SizedBox(width: 8),
-                    ElevatedButton(
-                      onPressed: _agregarPaso,
-                      child: const Text('Añadir paso'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 8),
-                if (_pasos.isNotEmpty)
-                  Align(
-                    alignment: Alignment.centerLeft,
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: List.generate(_pasos.length, (index) {
-                        final step = _pasos[index];
-                        // mostrar numerado y permitir borrado
-                        return Padding(
-                          padding: const EdgeInsets.only(bottom: 6),
-                          child: InputChip(
-                            label: Text('${index + 1}. $step'),
-                            onDeleted: () => _eliminarPaso(index),
-                          ),
-                        );
-                      }),
-                    ),
-                  ),
-
-                const SizedBox(height: 12),
-
-                // Dropdown categoría
-                DropdownButtonFormField<String>(
-                  initialValue: _categoriaSeleccionada,
-                  decoration: const InputDecoration(labelText: 'Categoría'),
-                  items: widget.categorias
-                      .map((c) => DropdownMenuItem(value: c, child: Text(c)))
-                      .toList(),
-                  onChanged: (v) => setState(() => _categoriaSeleccionada = v),
-                  validator: (v) => v == null || v.isEmpty
-                      ? 'Selecciona una categoría'
-                      : null,
-                ),
-
-                const SizedBox(height: 12),
-
-                // Dropdown dificultad
-                DropdownButtonFormField<String>(
-                  initialValue: _dificultadSeleccionada,
-                  decoration: const InputDecoration(labelText: 'Dificultad'),
-                  items: widget.dificultades
-                      .map((d) => DropdownMenuItem(value: d, child: Text(d)))
-                      .toList(),
-                  onChanged: (v) => setState(() => _dificultadSeleccionada = v),
-                  validator: (v) => v == null || v.isEmpty
-                      ? 'Selecciona una dificultad'
-                      : null,
-                ),
-
-                const SizedBox(height: 12),
-                TextFormField(
-                  controller: _urlImagen,
-                  decoration: const InputDecoration(labelText: "URL IMAGEN"),
-                ),
-                TextFormField(
-                  controller: _urlYoutube,
-                  decoration: const InputDecoration(labelText: "URL Youtube"),
-                ),
-                TextFormField(
-                  controller: _tiempoPreparacion,
-                  decoration: const InputDecoration(
-                    labelText: "Tiempo de preparación",
+                    onSubmitted: (_) => _agregarIngrediente(),
                   ),
                 ),
-                TextFormField(
-                  controller: _servings,
-                  decoration: const InputDecoration(labelText: "Servings"),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _agregarIngrediente,
+                  child: const Text('Agregar'),
                 ),
               ],
             ),
-          ),
+            const SizedBox(height: 8),
+            if (_ingredientes.isNotEmpty)
+              Wrap(
+                spacing: 8,
+                runSpacing: 6,
+                children: List.generate(_ingredientes.length, (i) {
+                  final ing = _ingredientes[i];
+                  return Chip(
+                    label: Text(ing),
+                    onDeleted: () => _quitarIngrediente(i),
+                  );
+                }),
+              ),
+
+            const SizedBox(height: 12),
+
+            // Pasos: input + add + numbered list
+            Align(
+              alignment: Alignment.centerLeft,
+              child: const Text(
+                'Pasos',
+                style: TextStyle(fontWeight: FontWeight.bold),
+              ),
+            ),
+            Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _pasoInputController,
+                    decoration: const InputDecoration(
+                      hintText: 'Escribir paso',
+                    ),
+                    onSubmitted: (_) => _agregarPaso(),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                ElevatedButton(
+                  onPressed: _agregarPaso,
+                  child: const Text('Agregar'),
+                ),
+              ],
+            ),
+            const SizedBox(height: 8),
+            if (_pasos.isNotEmpty)
+              Column(
+                children: List.generate(_pasos.length, (i) {
+                  final paso = _pasos[i];
+                  return ListTile(
+                    leading: CircleAvatar(child: Text((i + 1).toString())),
+                    title: Text(paso),
+                    trailing: IconButton(
+                      icon: const Icon(Icons.delete_outline),
+                      onPressed: () => _quitarPaso(i),
+                    ),
+                  );
+                }),
+              ),
+
+            const SizedBox(height: 12),
+
+            // URLs: Youtube e Imagen
+            TextField(
+              controller: _youtubeController,
+              decoration: const InputDecoration(
+                labelText: 'URL YouTube (video)',
+              ),
+              keyboardType: TextInputType.url,
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: _imageController,
+              decoration: const InputDecoration(labelText: 'URL imagen'),
+              keyboardType: TextInputType.url,
+            ),
+
+            /*  const SizedBox(height: 12),
+            Row(
+              children: [
+                const Text('Valoración'),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: Slider(
+                    value: _valoracion,
+                    min: 0,
+                    max: 5,
+                    divisions: 10,
+                    label: _valoracion.toStringAsFixed(1),
+                    onChanged: (v) => setState(() => _valoracion = v),
+                  ),
+                ),
+              ],
+            ),*/
+          ],
         ),
       ),
       actions: [
         TextButton(
-          child: const Text("Cancelar"),
-          onPressed: () => Navigator.pop(context),
+          onPressed: () => Navigator.of(context).pop(),
+          child: const Text('Cancelar'),
         ),
-        ElevatedButton(
-          child: const Text("Guardar"),
-          onPressed: () {
-            if (_formKey.currentState!.validate()) {
-              Navigator.pop(context);
-            }
-          },
-        ),
+        ElevatedButton(onPressed: _onGuardar, child: const Text('Guardar')),
       ],
     );
   }

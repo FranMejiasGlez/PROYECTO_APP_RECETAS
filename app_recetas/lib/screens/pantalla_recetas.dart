@@ -137,7 +137,7 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
             child: Text(
               'Nombre Usuario',
               textAlign: TextAlign.center,
-              overflow: TextOverflow.ellipsis,
+              overflow: TextOverflow.visible,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
@@ -235,7 +235,6 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
       child: Align(
         alignment: Alignment.centerRight,
         child: ElevatedButton(
-          
           onPressed: () {
             showDialog(
               context: context,
