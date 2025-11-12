@@ -1,4 +1,4 @@
-// services/moviesService.js
+// services/recetasService.js
 const { connect } = require('../db');
 const { ObjectId } = require('mongodb');
 
