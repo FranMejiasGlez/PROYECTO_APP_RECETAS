@@ -1,29 +1,26 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'config/routes.dart';
+import 'widgets/auth/user_credentials.dart';
 
 void main() {
-  // Descomentar para Device Preview
-  // runApp(DevicePreview(
-  //   enabled: !kReleaseMode,
-  //   builder: (context) => const MiAplicacion(),
-  // ));
-
-  runApp(const MiAplicacion());
+  runApp(
+    ChangeNotifierProvider(
+      create: (_) => UserCredentials(),
+      child: const MyApp(),
+    ),
+  );
 }
 
-class MiAplicacion extends StatelessWidget {
-  const MiAplicacion({Key? key}) : super(key: key);
-
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
       title: 'Migaz - App de Recetas',
       debugShowCheckedModeBanner: false,
-
-      // Para Device Preview
-      // locale: DevicePreview.locale(context),
-      // builder: DevicePreview.appBuilder,
       initialRoute: AppRoutes.login,
+      // usa el mapa de rutas definido en config/routes.dart
       routes: AppRoutes.routes,
     );
   }

@@ -21,14 +21,15 @@ class RecipeCarousel extends StatelessWidget {
           ),
         ),
         SizedBox(
-          height: 240,
+          height: 500,
+          width: MediaQuery.sizeOf(context).width * 0.7,
           child: ScrollConfiguration(
             behavior: ScrollConfiguration.of(context).copyWith(
               dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse},
               scrollbars: false,
             ),
             child: CarouselView(
-              itemExtent: MediaQuery.sizeOf(context).width - 100,
+              itemExtent: MediaQuery.sizeOf(context).width * 0.7,
               children: recipes.map((recipe) {
                 return Container(
                   margin: const EdgeInsets.symmetric(horizontal: 8),

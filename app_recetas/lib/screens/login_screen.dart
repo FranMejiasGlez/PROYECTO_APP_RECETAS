@@ -1,12 +1,60 @@
+import 'package:app_recetas/widgets/auth/user_credentials.dart';
 import 'package:flutter/material.dart';
 import '../widgets/auth/auth_logo.dart';
 import '../widgets/auth/auth_form_field.dart';
 import '../widgets/auth/gradient_scaffold.dart';
 import '../utils/responsive_helper.dart';
 import '../config/routes.dart';
+import 'package:provider/provider.dart';
 
-class LoginScreen extends StatelessWidget {
+class LoginScreen extends StatefulWidget {
   const LoginScreen({Key? key}) : super(key: key);
+
+  @override
+  State<LoginScreen> createState() => _LoginPruebaState();
+}
+
+class _LoginPruebaState extends State<LoginScreen> {
+  late TextEditingController _emailController;
+  late TextEditingController _passwordController;
+
+  @override
+  void initState() {
+    super.initState();
+    _emailController = TextEditingController();
+    _passwordController = TextEditingController();
+  }
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // Cargar credenciales del Provider si existen
+    final credentials = Provider.of<UserCredentials>(context);
+    if (credentials.hasCredentials) {
+      _emailController.text = credentials.email;
+      _passwordController.text = credentials.password;
+    }
+  }
+
+  @override
+  void dispose() {
+    _emailController.dispose();
+    _passwordController.dispose();
+    super.dispose();
+  }
+
+  void _handleLogin() {
+    // valida/login real aquí; por ahora navega al home
+    if (_emailController.text.trim().isEmpty ||
+        _passwordController.text.trim().isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor completa todos los campos')),
+      );
+      return;
+    }
+
+    Navigator.pushNamed(context, AppRoutes.home);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,12 +126,18 @@ class LoginScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        AuthFormField(label: "E-mail", scale: responsive.scale),
+        // <-- aquí pasamos los controllers para que muestren el texto
+        AuthFormField(
+          label: "E-mail",
+          controller: _emailController,
+          scale: responsive.scale,
+        ),
         SizedBox(height: 12 * responsive.scale),
 
         AuthFormField(
           label: "Contraseña",
           obscureText: true,
+          controller: _passwordController,
           scale: responsive.scale,
         ),
         SizedBox(height: 20 * responsive.scale),
@@ -93,9 +147,7 @@ class LoginScreen extends StatelessWidget {
           children: [
             Flexible(
               child: ElevatedButton(
-                onPressed: () {
-                  Navigator.pushNamed(context, AppRoutes.home);
-                },
+                onPressed: _handleLogin,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFFEC601),
                   foregroundColor: Colors.black,
