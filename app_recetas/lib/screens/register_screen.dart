@@ -1,12 +1,59 @@
+import 'package:app_recetas/widgets/auth/user_credentials.dart';
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../widgets/auth/auth_logo.dart';
 import '../widgets/auth/auth_form_field.dart';
 import '../widgets/auth/gradient_scaffold.dart';
 import '../utils/responsive_helper.dart';
 import '../config/routes.dart';
 
-class RegisterScreen extends StatelessWidget {
+class RegisterScreen extends StatefulWidget {
   const RegisterScreen({Key? key}) : super(key: key);
+
+  @override
+  State<RegisterScreen> createState() => _RegisterScreenState();
+}
+
+class _RegisterScreenState extends State<RegisterScreen> {
+  final _usernameController = TextEditingController();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  final _confirmPasswordController = TextEditingController();
+
+  @override
+  void dispose() {
+    _usernameController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
+    _confirmPasswordController.dispose();
+    super.dispose();
+  }
+
+  void _handleRegister(BuildContext context) {
+    // Validaciones básicas
+    if (_emailController.text.isEmpty ||
+        _passwordController.text.isEmpty ||
+        _usernameController.text.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Por favor completa todos los campos')),
+      );
+      return;
+    }
+
+    if (_passwordController.text != _confirmPasswordController.text) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Las contraseñas no coinciden')),
+      );
+      return;
+    }
+
+    // Guardar credenciales en el Provider
+    final credentials = Provider.of<UserCredentials>(context, listen: false);
+    credentials.setCredentials(_emailController.text, _passwordController.text);
+
+    // Navegar al login
+    Navigator.pushReplacementNamed(context, AppRoutes.login);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,15 +125,24 @@ class RegisterScreen extends StatelessWidget {
       crossAxisAlignment: CrossAxisAlignment.start,
       mainAxisSize: MainAxisSize.min,
       children: [
-        AuthFormField(label: "Nombre de usuario", scale: responsive.scale),
+        AuthFormField(
+          label: "Nombre de usuario",
+          controller: _usernameController,
+          scale: responsive.scale,
+        ),
         SizedBox(height: 8 * responsive.scale),
 
-        AuthFormField(label: "E-mail", scale: responsive.scale),
+        AuthFormField(
+          label: "E-mail",
+          controller: _emailController,
+          scale: responsive.scale,
+        ),
         SizedBox(height: 8 * responsive.scale),
 
         AuthFormField(
           label: "Contraseña",
           obscureText: true,
+          controller: _passwordController,
           scale: responsive.scale,
         ),
         SizedBox(height: 8 * responsive.scale),
@@ -94,6 +150,7 @@ class RegisterScreen extends StatelessWidget {
         AuthFormField(
           label: "Confirmar contraseña",
           obscureText: true,
+          controller: _confirmPasswordController,
           scale: responsive.scale,
         ),
         SizedBox(height: 16 * responsive.scale),
@@ -102,9 +159,19 @@ class RegisterScreen extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.end,
           children: [
             ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacementNamed(context, AppRoutes.login);
-              },
+              onPressed: () => _handleRegister(context),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFEC601),
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 12,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 5,
+              ),
               child: const Text('Registrarse'),
             ),
           ],

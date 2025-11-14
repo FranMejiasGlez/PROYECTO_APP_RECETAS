@@ -1,5 +1,7 @@
 import 'package:app_recetas/widgets/recipe/user_avatar.dart';
+import 'package:app_recetas/widgets/recipe/ventana_crear_receta.dart';
 import 'package:flutter/material.dart';
+
 import '../widgets/recipe/recipe_filter_dropdown.dart';
 import '../widgets/recipe/recipe_search_bar.dart';
 import '../widgets/recipe/recipe_card.dart';
@@ -25,6 +27,12 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
     'Mexicana',
   ];
 
+  final List<String> _dificultad = [
+    'Todos los niveles',
+    'fácil',
+    'Medio',
+    'Difícil',
+  ];
   // Esta lista debería venir de un servicio/provider
   final List<Map<String, dynamic>> _todasLasRecetas = [
     {'nombre': 'Paella Valenciana', 'categoria': 'Española', 'valoracion': 4.8},
@@ -51,6 +59,11 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
           receta['categoria'] == _filtroSeleccionado;
       return matchesSearch && matchesFilter;
     }).toList();
+  }
+
+  @override
+  void initState() {
+    super.initState();
   }
 
   @override
@@ -93,25 +106,44 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
     return Padding(
       padding: const EdgeInsets.all(16.0),
       child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          ElevatedButton(
-            onPressed: () {},
-            style: ElevatedButton.styleFrom(
-              backgroundColor: const Color(0xFFFEC601),
-              foregroundColor: Colors.black,
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          // limitar ancho del botón para que no estire la fila
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 140),
+            child: ElevatedButton(
+              onPressed: () {},
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFEC601),
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 5,
               ),
-              elevation: 5,
+              child: const FittedBox(
+                fit: BoxFit.scaleDown,
+                child: Text('Biblioteca'),
+              ),
             ),
-            child: const Text('Biblioteca'),
           ),
-          const Text(
-            'Nombre Usuario',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+
+          // espacio flexible para el título (centrado y recortado si hace falta)
+          const SizedBox(width: 12),
+          Expanded(
+            child: Text(
+              'Nombre Usuario',
+              textAlign: TextAlign.center,
+              overflow: TextOverflow.visible,
+              style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+            ),
           ),
+          const SizedBox(width: 12),
+
+          // avatar con tamaño fijo
           UserAvatar(
             imageUrl:
                 'https://raw.githubusercontent.com/FranMejiasGlez/TallerFlutter/main/sandbox_fran/imperativo/img/Logo.png',
@@ -159,10 +191,7 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
           children: [
             Icon(Icons.search_off, size: 64, color: Colors.grey[600]),
             const SizedBox(height: 16),
-            Text(
-              'No se encontraron recetas',
-              style: TextStyle(fontSize: 18, color: Colors.grey[600]),
-            ),
+            Text('No se encontraron recetas'),
           ],
         ),
       );
@@ -206,7 +235,16 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
       child: Align(
         alignment: Alignment.centerRight,
         child: ElevatedButton(
-          onPressed: () {},
+          onPressed: () {
+            showDialog(
+              context: context,
+              builder: (context) => DialogoCrearReceta(
+                categorias: _categorias,
+                dificultades: _dificultad,
+              ),
+            );
+          },
+
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFFEC601),
             foregroundColor: Colors.black,
