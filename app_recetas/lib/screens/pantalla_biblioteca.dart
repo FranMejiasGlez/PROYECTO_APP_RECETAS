@@ -1,7 +1,3 @@
-import 'package:app_recetas/config/routes.dart';
-import 'package:app_recetas/model/recipe.dart';
-import 'package:app_recetas/screens/pantalla_biblioteca.dart';
-import 'package:app_recetas/utils/network.dart';
 import 'package:app_recetas/widgets/recipe/user_avatar.dart';
 import 'package:app_recetas/widgets/recipe/ventana_crear_receta.dart';
 import 'package:flutter/material.dart';
@@ -11,14 +7,14 @@ import '../widgets/recipe/recipe_search_bar.dart';
 import '../widgets/recipe/recipe_card.dart';
 import '../widgets/recipe/recipe_carousel.dart';
 
-class PantallaRecetas extends StatefulWidget {
-  const PantallaRecetas({Key? key}) : super(key: key);
+class PantallaBiblioteca extends StatefulWidget {
+  const PantallaBiblioteca({Key? key}) : super(key: key);
 
   @override
-  State<PantallaRecetas> createState() => _PantallaRecetasState();
+  State<PantallaBiblioteca> createState() => _PantallaBibliotecaState();
 }
 
-class _PantallaRecetasState extends State<PantallaRecetas> {
+class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _filtroSeleccionado = 'Todos';
@@ -115,9 +111,7 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 140),
             child: ElevatedButton(
-              onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.biblioteca);
-              },
+              onPressed: () {},
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFEC601),
                 foregroundColor: Colors.black,
@@ -241,27 +235,14 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
       child: Align(
         alignment: Alignment.centerRight,
         child: ElevatedButton(
-          onPressed: () async {
-            final Recipe? nueva = await showDialog<Recipe>(
+          onPressed: () {
+            showDialog(
               context: context,
               builder: (context) => DialogoCrearReceta(
                 categorias: _categorias,
                 dificultades: _dificultad,
               ),
             );
-
-            if (nueva == null) return; // usuario canceló
-
-            // opcion A: guardar en servidor y en UI
-            try {
-              await saveRecipeToServer(nueva); // import in the header: utils/network.dart
-              setState(() {
-                _todasLasRecetas.add(nueva.toJson());
-              });
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Receta guardada en servidor')));
-            } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error guardando: $e')));
-            }
           },
 
           style: ElevatedButton.styleFrom(
