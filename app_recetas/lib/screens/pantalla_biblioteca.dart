@@ -1,3 +1,4 @@
+import 'package:app_recetas/screens/pantalla_recetas.dart';
 import 'package:app_recetas/widgets/recipe/user_avatar.dart';
 import 'package:app_recetas/widgets/recipe/ventana_crear_receta.dart';
 import 'package:flutter/material.dart';
@@ -33,7 +34,7 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
     'Medio',
     'Difícil',
   ];
-  // Esta lista debería venir de un servicio/provider
+
   final List<Map<String, dynamic>> _todasLasRecetas = [
     {'nombre': 'Paella Valenciana', 'categoria': 'Española', 'valoracion': 4.8},
     {
@@ -94,7 +95,6 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
                     ? _buildSearchResults()
                     : _buildHomeContent(),
               ),
-              _buildCreateRecipeButton(),
             ],
           ),
         ),
@@ -107,11 +107,12 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
       padding: const EdgeInsets.all(16.0),
       child: Row(
         children: [
-          // limitar ancho del botón para que no estire la fila
           ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 140),
             child: ElevatedButton(
-              onPressed: () {},
+              onPressed: () {
+                Navigator.pop(context);
+              },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFEC601),
                 foregroundColor: Colors.black,
@@ -126,24 +127,53 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
               ),
               child: const FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text('Biblioteca'),
+                child: Icon(Icons.arrow_back),
               ),
             ),
           ),
 
-          // espacio flexible para el título (centrado y recortado si hace falta)
           const SizedBox(width: 12),
           Expanded(
             child: Text(
-              'Nombre Usuario',
+              'Tu biblioteca',
               textAlign: TextAlign.center,
-              overflow: TextOverflow.visible,
+              overflow: TextOverflow.ellipsis,
               style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
             ),
           ),
           const SizedBox(width: 12),
 
-          // avatar con tamaño fijo
+          // Botón Crear junto al avatar
+          Padding(
+            padding: const EdgeInsets.only(right: 8.0),
+            child: ElevatedButton.icon(
+              onPressed: () {
+                showDialog(
+                  context: context,
+                  builder: (context) => DialogoCrearReceta(
+                    categorias: _categorias,
+                    dificultades: _dificultad,
+                  ),
+                );
+              },
+              icon: const Icon(Icons.add, size: 18),
+              label: const Text('Crear Receta'),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFFEC601),
+                foregroundColor: Colors.black,
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 12,
+                  vertical: 10,
+                ),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                elevation: 3,
+                minimumSize: const Size(80, 36),
+              ),
+            ),
+          ),
+
           UserAvatar(
             imageUrl:
                 'https://raw.githubusercontent.com/FranMejiasGlez/TallerFlutter/main/sandbox_fran/imperativo/img/Logo.png',
@@ -214,47 +244,19 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
 
   Widget _buildHomeContent() {
     return SingleChildScrollView(
-      child: Column(
-        children: [
-          RecipeCarousel(
-            title: 'Más valorado',
-            recipes: List.generate(10, (i) => 'Receta $i'),
-          ),
-          RecipeCarousel(
-            title: 'Más nuevo',
-            recipes: List.generate(10, (i) => 'Receta $i'),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildCreateRecipeButton() {
-    return Padding(
-      padding: const EdgeInsets.all(20),
-      child: Align(
-        alignment: Alignment.centerRight,
-        child: ElevatedButton(
-          onPressed: () {
-            showDialog(
-              context: context,
-              builder: (context) => DialogoCrearReceta(
-                categorias: _categorias,
-                dificultades: _dificultad,
-              ),
-            );
-          },
-
-          style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFEC601),
-            foregroundColor: Colors.black,
-            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
-            shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+      child: Padding(
+        padding: EdgeInsetsGeometry.all(80),
+        child: Column(
+          children: [
+            RecipeCarousel(
+              title: 'Mis Recetas',
+              recipes: List.generate(10, (i) => 'Receta $i'),
             ),
-            elevation: 5,
-          ),
-          child: const Text('Crear Receta'),
+            RecipeCarousel(
+              title: 'Guardados',
+              recipes: List.generate(10, (i) => 'Receta $i'),
+            ),
+          ],
         ),
       ),
     );
