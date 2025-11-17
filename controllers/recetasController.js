@@ -1,6 +1,9 @@
 const { connect } = require("../db");
-const { ObjectId } = require("mongodb");
+const { ObjectId, Int32 } = require("mongodb");
 
+// ======================================================
+// GET - OBTENER TODAS LAS RECETAS
+// ======================================================
 exports.obtenerTodos = async (req, res) => {
   try {
     const db = await connect();
@@ -12,9 +15,13 @@ exports.obtenerTodos = async (req, res) => {
   }
 };
 
+// ======================================================
+// GET - OBTENER UNA RECETA POR ID
+// ======================================================
 exports.obtenerPorId = async (req, res) => {
   try {
     const db = await connect();
+
     const receta = await db
       .collection("recetas")
       .findOne({ _id: new ObjectId(req.params.id) });
@@ -29,15 +36,20 @@ exports.obtenerPorId = async (req, res) => {
   }
 };
 
+// ======================================================
+// POST - CREAR UNA RECETA (ADAPTADO AL SCHEMA)
+// ======================================================
 exports.crear = async (req, res) => {
   try {
     const db = await connect();
     const raw = req.body;
 
     const receta = {
+      _id: new ObjectId(),
       nombre: raw.nombre,
-      comensales: Number(raw.comensales),
-      dificultad: Number(raw.dificultad),
+      comensales: new Int32(raw.comensales),  // int
+      dificultad: String(raw.dificultad),     // string (schema lo exige)
+      categoria: raw.categoria,               // obligatorio
       tiempo: raw.tiempo,
       ingredientes: Array.isArray(raw.ingredientes) ? raw.ingredientes : [],
       instrucciones: Array.isArray(raw.instrucciones) ? raw.instrucciones : []
@@ -51,31 +63,46 @@ exports.crear = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error al crear receta" });
+    console.error(
+      "SCHEMA VALIDATION ERROR:",
+      JSON.stringify(error.errInfo, null, 2)
+    );
+    res.status(500).json({ mensaje: "Error al crear receta", detalle: error.errInfo });
   }
 };
 
+// ======================================================
+// PUT - ACTUALIZAR RECETA
+// ======================================================
 exports.actualizar = async (req, res) => {
   try {
     const db = await connect();
 
-    const { value } = await db.collection("recetas").findOneAndUpdate(
+    const result = await db.collection("recetas").findOneAndUpdate(
       { _id: new ObjectId(req.params.id) },
       { $set: req.body },
-      { returnDocument: "after" }
+      {
+        returnDocument: "after",   // devuelve el documento actualizado
+        returnOriginal: false      // compatibilidad con versiones antiguas
+      }
     );
 
-    value
-      ? res.json(value)
-      : res.status(404).json({ mensaje: "No encontrado" });
+    if (!result.value) {
+      return res.status(404).json({ mensaje: "No encontrado" });
+    }
+
+    res.json(result.value);
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ mensaje: "Error al actualizar" });
+    res.status(500).json({ mensaje: "Error al actualizar receta" });
   }
 };
 
+
+// ======================================================
+// DELETE - ELIMINAR RECETA
+// ======================================================
 exports.eliminar = async (req, res) => {
   try {
     const db = await connect();
@@ -90,6 +117,6 @@ exports.eliminar = async (req, res) => {
 
   } catch (error) {
     console.error(error);
-    res.status(500).json({ mensaje: "Error al eliminar" });
+    res.status(500).json({ mensaje: "Error al eliminar receta" });
   }
 };
