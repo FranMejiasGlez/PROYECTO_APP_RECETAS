@@ -87,11 +87,11 @@ exports.actualizar = async (req, res) => {
       }
     );
 
-    if (!result.value) {
+    if (!result) {
       return res.status(404).json({ mensaje: "No encontrado" });
     }
 
-    res.json(result.value);
+    res.json(result);
 
   } catch (error) {
     console.error(error);
