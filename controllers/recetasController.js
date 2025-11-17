@@ -82,16 +82,19 @@ exports.actualizar = async (req, res) => {
       { _id: new ObjectId(req.params.id) },
       { $set: req.body },
       {
-        returnDocument: "after",   // devuelve el documento actualizado
-        returnOriginal: false      // compatibilidad con versiones antiguas
+        returnNewDocument: true,
+        //returnDocument: "after",   // devuelve el documento actualizado
+        //returnOriginal: false      // compatibilidad con versiones antiguas
       }
     );
 
-    if (!result.value) {
+    //console.log('MongoDB Update Result:', result);
+
+    if (!result) {
       return res.status(404).json({ mensaje: "No encontrado" });
     }
 
-    res.json(result.value);
+    res.json(result);
 
   } catch (error) {
     console.error(error);
