@@ -1,5 +1,6 @@
+import 'package:app_recetas/config/routes.dart';
 import 'package:app_recetas/widgets/recipe/user_avatar.dart';
-import 'package:app_recetas/widgets/recipe/ventana_crear_receta.dart';
+
 import 'package:flutter/material.dart';
 
 import '../widgets/recipe/recipe_filter_dropdown.dart';
@@ -28,7 +29,6 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
   ];
 
   final List<String> _dificultad = [
-    'Todos los niveles',
     'fácil',
     'Medio',
     'Difícil',
@@ -116,7 +116,7 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                     child: ElevatedButton.icon(
                       onPressed: () {},
-                      
+
                       label: const Text('Mis Recetas'),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: const Color(0xFFFEC601),
@@ -192,7 +192,7 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
           UserAvatar(
             imageUrl:
                 'https://raw.githubusercontent.com/FranMejiasGlez/TallerFlutter/main/sandbox_fran/imperativo/img/Logo.png',
-            onTap: () => print('Avatar clickeado'),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.perfilUser),
           ),
         ],
       ),
