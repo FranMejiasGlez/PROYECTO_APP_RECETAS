@@ -1,4 +1,3 @@
-import 'package:app_recetas/screens/pantalla_recetas.dart';
 import 'package:app_recetas/widgets/recipe/user_avatar.dart';
 import 'package:app_recetas/widgets/recipe/ventana_crear_receta.dart';
 import 'package:flutter/material.dart';
@@ -89,6 +88,53 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
             children: [
               _buildHeader(),
               _buildSearchSection(),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    child: ElevatedButton.icon(
+                      onPressed: () {},
+
+                      label: const Text('Guardados'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFEC601),
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 3,
+                        minimumSize: const Size(80, 36),
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+                    child: ElevatedButton.icon(
+                      onPressed: () {},
+                      
+                      label: const Text('Mis Recetas'),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFFFEC601),
+                        foregroundColor: Colors.black,
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 10,
+                        ),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(12),
+                        ),
+                        elevation: 3,
+                        minimumSize: const Size(80, 36),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
               const SizedBox(height: 16),
               Expanded(
                 child: _searchQuery.isNotEmpty || _filtroSeleccionado != 'Todos'
@@ -142,37 +188,6 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
             ),
           ),
           const SizedBox(width: 12),
-
-          // Botón Crear junto al avatar
-          Padding(
-            padding: const EdgeInsets.only(right: 8.0),
-            child: ElevatedButton.icon(
-              onPressed: () {
-                showDialog(
-                  context: context,
-                  builder: (context) => DialogoCrearReceta(
-                    categorias: _categorias,
-                    dificultades: _dificultad,
-                  ),
-                );
-              },
-              icon: const Icon(Icons.add, size: 18),
-              label: const Text('Crear Receta'),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFEC601),
-                foregroundColor: Colors.black,
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 10,
-                ),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                elevation: 3,
-                minimumSize: const Size(80, 36),
-              ),
-            ),
-          ),
 
           UserAvatar(
             imageUrl:
