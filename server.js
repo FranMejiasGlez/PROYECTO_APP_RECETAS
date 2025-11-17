@@ -1,3 +1,13 @@
-import app from "./src/app.js";
-const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log(`🚀 Servidor en http://localhost:${PORT}`));
+const express = require('express');
+const app = express();
+app.use(express.json());
+
+app.use('/api/recetas', require('./routes/recetasRoutes.js'));
+
+const { connect } = require('./db');
+
+connect().then(() => {
+    app.listen(3000, () => {
+        console.log('Server listening on port 3000');
+    });
+}).catch(console.error);
