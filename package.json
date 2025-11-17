@@ -2,8 +2,11 @@
   "name": "proyecto_app_recetas",
   "version": "1.0.0",
   "description": "LET US COOK",
-  "main": "index.js",
+  "main": "server.js",
+  "type": "module",
   "scripts": {
+    "dev": "nodemon server.js",
+    "start": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "repository": {
