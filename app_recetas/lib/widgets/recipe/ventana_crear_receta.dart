@@ -1,5 +1,6 @@
 import 'package:app_recetas/model/recipe.dart';
 import 'package:flutter/material.dart';
+ 
 
 class DialogoCrearReceta extends StatefulWidget {
   final List<String> categorias;
@@ -21,7 +22,7 @@ class _DialogoCrearRecetaState extends State<DialogoCrearReceta> {
   final TextEditingController _servingsController = TextEditingController(
     text: '1',
   );
-
+  final TextEditingController _tiempoController = TextEditingController();
   // Ingredientes y pasos (listas manejadas uno a uno)
   final TextEditingController _ingredienteInputController =
       TextEditingController();
@@ -35,7 +36,6 @@ class _DialogoCrearRecetaState extends State<DialogoCrearReceta> {
 
   String _categoriaSeleccionada = '';
   String _dificultadSeleccionada = '';
-  double _valoracion = 0.0;
 
   @override
   void initState() {
@@ -88,6 +88,7 @@ class _DialogoCrearRecetaState extends State<DialogoCrearReceta> {
 
   void _onGuardar() {
     final nombre = _nombreController.text.trim();
+
     if (nombre.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Introduce un nombre para la receta')),
@@ -96,22 +97,22 @@ class _DialogoCrearRecetaState extends State<DialogoCrearReceta> {
     }
 
     final servings = int.tryParse(_servingsController.text.trim()) ?? 1;
-
+    final tiempo = _tiempoController.text.trim();
     final nueva = Recipe(
       nombre: nombre,
       categoria: _categoriaSeleccionada,
-      valoracion: _valoracion,
       descripcion: _descripcionController.text.trim(),
       dificultad: _dificultadSeleccionada,
       servings: servings,
+      tiempo: tiempo,
       pasos: List<String>.from(_pasos),
       ingredientes: List<String>.from(_ingredientes),
-      youtubeUrl: _youtubeController.text.trim().isEmpty
+      /*  youtubeUrl: _youtubeController.text.trim().isEmpty
           ? null
           : _youtubeController.text.trim(),
       imageUrl: _imageController.text.trim().isEmpty
           ? null
-          : _imageController.text.trim(),
+          : _imageController.text.trim(),*/
     );
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(content: Text('Receta "${nueva.toString()}" creada')),
@@ -153,6 +154,10 @@ class _DialogoCrearRecetaState extends State<DialogoCrearReceta> {
                 () => _dificultadSeleccionada = v ?? _dificultadSeleccionada,
               ),
               decoration: const InputDecoration(labelText: 'Dificultad'),
+            ),
+            TextField(
+              controller: _tiempoController,
+              decoration: const InputDecoration(labelText: 'Tiempo total'),
             ),
             const SizedBox(height: 8),
             TextField(
@@ -270,24 +275,6 @@ class _DialogoCrearRecetaState extends State<DialogoCrearReceta> {
               decoration: const InputDecoration(labelText: 'URL imagen'),
               keyboardType: TextInputType.url,
             ),
-
-            /*  const SizedBox(height: 12),
-            Row(
-              children: [
-                const Text('Valoración'),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Slider(
-                    value: _valoracion,
-                    min: 0,
-                    max: 5,
-                    divisions: 10,
-                    label: _valoracion.toStringAsFixed(1),
-                    onChanged: (v) => setState(() => _valoracion = v),
-                  ),
-                ),
-              ],
-            ),*/
           ],
         ),
       ),
