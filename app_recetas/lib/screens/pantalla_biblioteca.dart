@@ -28,11 +28,8 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
     'Mexicana',
   ];
 
-  final List<String> _dificultad = [
-    'fácil',
-    'Medio',
-    'Difícil',
-  ];
+  // ignore: unused_field
+  final List<String> _dificultad = ['fácil', 'Medio', 'Difícil'];
 
   final List<Map<String, dynamic>> _todasLasRecetas = [
     {'nombre': 'Paella Valenciana', 'categoria': 'Española', 'valoracion': 4.8},
@@ -94,7 +91,9 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoutes.guardados);
+                      },
 
                       label: const Text('Guardados'),
                       style: ElevatedButton.styleFrom(
@@ -115,7 +114,9 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
                     child: ElevatedButton.icon(
-                      onPressed: () {},
+                      onPressed: () {
+                        Navigator.pushNamed(context, AppRoutes.misrecetas);
+                      },
 
                       label: const Text('Mis Recetas'),
                       style: ElevatedButton.styleFrom(
