@@ -153,8 +153,9 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
           UserAvatar(
             imageUrl:
                 'https://raw.githubusercontent.com/FranMejiasGlez/TallerFlutter/main/sandbox_fran/imperativo/img/Logo.png',
-            onTap: () => print('Avatar clickeado'),
+            onTap: () =>Navigator.pushNamed(context, AppRoutes.perfilUser),
           ),
+          
         ],
       ),
     );
