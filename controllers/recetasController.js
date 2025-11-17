@@ -1,23 +1,40 @@
-// controllers/recetasController.js
-const recetasService = require('../services/recetasServices');
+const { connect } = require("../db");
+const { ObjectId } = require("mongodb");
 
 exports.obtenerTodos = async (req, res) => {
-    const recetas = await recetasService.listar();
+  try {
+    const db = await connect();
+    const recetas = await db.collection("recetas").find().toArray();
     res.json(recetas);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: "Error al obtener recetas" });
+  }
 };
 
 exports.obtenerPorId = async (req, res) => {
-    const movie = await recetasService.buscarPorId(req.params.id);
-    movie ? res.json(movie) : res.status(404).json({ mensaje: 'No encontrado' });
+  try {
+    const db = await connect();
+    const receta = await db
+      .collection("recetas")
+      .findOne({ _id: new ObjectId(req.params.id) });
+
+    receta
+      ? res.json(receta)
+      : res.status(404).json({ mensaje: "No encontrado" });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: "Error al obtener receta" });
+  }
 };
 
 exports.crear = async (req, res) => {
-    try {
+  try {
+    const db = await connect();
     const raw = req.body;
 
-    // Normalizar tipos
     const receta = {
-      _id: new ObjectId(),
       nombre: raw.nombre,
       comensales: Number(raw.comensales),
       dificultad: Number(raw.dificultad),
@@ -26,20 +43,53 @@ exports.crear = async (req, res) => {
       instrucciones: Array.isArray(raw.instrucciones) ? raw.instrucciones : []
     };
 
-    const result = await collection.insertOne(receta);
-    res.status(201).json({ insertedId: result.insertedId });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: err.message });
+    const result = await db.collection("recetas").insertOne(receta);
+
+    res.status(201).json({
+      mensaje: "Receta creada",
+      id: result.insertedId
+    });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: "Error al crear receta" });
   }
 };
 
 exports.actualizar = async (req, res) => {
-    const actualizado = await recetasService.actualizar(req.params.id, req.body);
-    actualizado ? res.json(actualizado) : res.status(404).json({ mensaje: 'No encontrado' });
+  try {
+    const db = await connect();
+
+    const { value } = await db.collection("recetas").findOneAndUpdate(
+      { _id: new ObjectId(req.params.id) },
+      { $set: req.body },
+      { returnDocument: "after" }
+    );
+
+    value
+      ? res.json(value)
+      : res.status(404).json({ mensaje: "No encontrado" });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: "Error al actualizar" });
+  }
 };
 
 exports.eliminar = async (req, res) => {
-    const eliminado = await recetasService.eliminar(req.params.id);
-    eliminado ? res.json(eliminado) : res.status(404).json({ mensaje: 'No encontrado' });
+  try {
+    const db = await connect();
+
+    const resultado = await db
+      .collection("recetas")
+      .deleteOne({ _id: new ObjectId(req.params.id) });
+
+    resultado.deletedCount === 0
+      ? res.status(404).json({ mensaje: "No encontrado" })
+      : res.json({ mensaje: "Eliminado correctamente" });
+
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ mensaje: "Error al eliminar" });
+  }
 };
