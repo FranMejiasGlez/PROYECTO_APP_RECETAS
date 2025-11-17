@@ -12,8 +12,26 @@ exports.obtenerPorId = async (req, res) => {
 };
 
 exports.crear = async (req, res) => {
-    const nuevo = await recetasService.crear(req.body);
-    res.status(201).json(nuevo);
+    try {
+    const raw = req.body;
+
+    // Normalizar tipos
+    const receta = {
+      _id: new ObjectId(),
+      nombre: raw.nombre,
+      comensales: Number(raw.comensales),
+      dificultad: Number(raw.dificultad),
+      tiempo: raw.tiempo,
+      ingredientes: Array.isArray(raw.ingredientes) ? raw.ingredientes : [],
+      instrucciones: Array.isArray(raw.instrucciones) ? raw.instrucciones : []
+    };
+
+    const result = await collection.insertOne(receta);
+    res.status(201).json({ insertedId: result.insertedId });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: err.message });
+  }
 };
 
 exports.actualizar = async (req, res) => {

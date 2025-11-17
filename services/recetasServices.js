@@ -17,10 +17,10 @@ exports.buscarPorId = async (id) => {
   return col.findOne({ _id: new ObjectId(id) });
 };
 
-exports.crear = async (nuevo) => {
-  const col = await getCollection();
-  const result = await col.insertOne(nuevo);
-  return { ...nuevo, _id: result.insertedId };
+exports.crear = async (receta) => {
+  const db = getDb();
+  const col = db.collection('recetas');
+  return col.insertOne(receta);
 };
 
 exports.actualizar = async (id, cambios) => {
