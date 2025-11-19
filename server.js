@@ -1,10 +1,14 @@
 const express = require("express");
+const cors = require("cors");
 const { connect } = require("./db");  // conexión MongoDB
 require("dotenv").config();
 
 const recetasRoutes = require("./routes/recetasRoutes");
 
 const app = express();
+
+// Habilitar CORS para todos
+app.use(cors());
 app.use(express.json());
 
 // RUTA PRINCIPAL DE LA API
