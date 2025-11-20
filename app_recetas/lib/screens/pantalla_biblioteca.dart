@@ -63,47 +63,42 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
     }).toList();
   }
 
-  /*  @override
+  @override
   void didChangeDependencies() {
     super.didChangeDependencies();
 
-    // Leer argumentos SIEMPRE
+    // Intentamos recuperar la lista desde los argumentos de la navegación
     final args = ModalRoute.of(context)?.settings.arguments;
 
     if (args is List<Recipe>) {
       setState(() {
         _recetasLocales = args;
       });
-      print('📚 Biblioteca recibió ${args.length} recetas'); // Debug
-    } else if (widget.listaRecetas != null) {
+    }
+    // Si viene como una lista genérica (a veces pasa en Flutter)
+    else if (args is List) {
+      setState(() {
+        _recetasLocales = List<Recipe>.from(args);
+      });
+    }
+    // Fallback: Si no hay argumentos, usamos lo del constructor
+    else if (widget.listaRecetas != null) {
       setState(() {
         _recetasLocales = widget.listaRecetas;
       });
-      print(
-        '📚 Biblioteca recibió ${widget.listaRecetas!.length} recetas del constructor',
-      ); // Debug
-    }
-  }*/
-  @override
-  void didChangeDependencies() {
-    super.didChangeDependencies();
-
-    // 2. Leer los argumentos de la ruta y guardarlos en _recetasLocales
-    if (_recetasLocales == null) {
-      final args = ModalRoute.of(context)?.settings.arguments;
-
-      if (args is List<Recipe>) {
-        _recetasLocales = args;
-      } else {
-        // En caso de que se navegue de otra forma, usar el constructor
-        _recetasLocales = widget.listaRecetas;
-      }
     }
   }
 
   @override
   void initState() {
     super.initState();
+    // Inicializamos la lista local con la que viene del constructor
+    if (widget.listaRecetas != null) {
+      _recetasLocales = widget.listaRecetas;
+    } else {
+      // O inicializa con una lista vacía o datos de prueba para que funcione
+      _recetasLocales = [];
+    }
   }
 
   @override
@@ -276,6 +271,7 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
     );
   }
 
+  //!
   Widget _buildSearchResults() {
     if (_recetasFiltradas.isEmpty) {
       return Center(
@@ -290,16 +286,32 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: _recetasFiltradas.length,
-      itemBuilder: (context, index) {
-        final receta = _recetasFiltradas[index];
-        return RecipeCard(
-          nombre: receta['nombre'],
-          categoria: receta['categoria'],
-          valoracion: receta['valoracion'],
-          onTap: () => print('Receta: ${receta['nombre']}'),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = constraints.maxWidth;
+        final cardWidth = (screenWidth - 36) / 2;
+        final cardHeight = cardWidth * 1.2;
+
+        return Padding(
+          padding: const EdgeInsets.all(12),
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: cardWidth / cardHeight,
+            ),
+            itemCount: _recetasFiltradas.length,
+            itemBuilder: (context, index) {
+              final receta = _recetasFiltradas[index];
+              return RecipeCard(
+                nombre: receta['nombre'],
+                categoria: receta['categoria'],
+                valoracion: receta['valoracion'],
+                onTap: () => print('Receta: ${receta['nombre']}'),
+              );
+            },
+          ),
         );
       },
     );
@@ -308,18 +320,37 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
   Widget _buildHomeContent() {
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsets.all(16),
+        padding: const EdgeInsets.all(16),
         child: Column(
           children: [
+            // --- CARRUSEL 1: MIS RECETAS ---
             RecipeCarousel(
               title: 'Mis Recetas',
+              // Muestra "Sin recetas" si la lista está vacía, pero permite hacer clic
               recipes: _recetasLocales != null && _recetasLocales!.isNotEmpty
                   ? _recetasLocales!.map((r) => r.nombre).toList()
-                  : ['No hay recetas'],
+                  : ['Sin recetas'], // Este elemento también será clickeable
+              onRecipeTap: (index) {
+                // ¡SIN CONDICIONES! Navega siempre.
+                // Pasamos la lista actual (puede ser null, la otra pantalla ya sabe manejarlo)
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.misrecetas,
+                  arguments: _recetasLocales,
+                );
+              },
             ),
+
+            // --- CARRUSEL 2: GUARDADOS ---
             RecipeCarousel(
               title: 'Guardados',
-              recipes: List.generate(10, (i) => 'Receta $i'),
+              recipes: _todasLasRecetas
+                  .map((receta) => receta['nombre'].toString())
+                  .toList(),
+              onRecipeTap: (index) {
+                // ¡SIN CONDICIONES! Navega directo a Guardados.
+                Navigator.pushNamed(context, AppRoutes.guardados);
+              },
             ),
           ],
         ),

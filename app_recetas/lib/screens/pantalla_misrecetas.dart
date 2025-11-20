@@ -3,10 +3,10 @@ import 'package:app_recetas/model/recipe.dart';
 import 'package:app_recetas/widgets/recipe/user_avatar.dart';
 
 import 'package:flutter/material.dart';
-
+import 'package:app_recetas/widgets/recipe/recipe_card.dart';
 import '../widgets/recipe/recipe_filter_dropdown.dart';
 import '../widgets/recipe/recipe_search_bar.dart';
-import '../widgets/recipe/recipe_card.dart';
+
 import 'package:app_recetas/utils/app_theme.dart';
 
 class PantallaMisRecetas extends StatefulWidget {
@@ -409,16 +409,32 @@ class _PantallaMisRecetasState extends State<PantallaMisRecetas> {
       );
     }
 
-    return ListView.builder(
-      padding: const EdgeInsets.symmetric(horizontal: 16),
-      itemCount: _recetasFiltradas.length,
-      itemBuilder: (context, index) {
-        final receta = _recetasFiltradas[index];
-        return RecipeCard(
-          nombre: receta.nombre,
-          categoria: receta.categoria,
-          valoracion: 4.5,
-          onTap: () => _mostrarDetallesReceta(receta),
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final screenWidth = constraints.maxWidth;
+        final cardWidth = (screenWidth - 36) / 2;
+        final cardHeight = cardWidth * 1.2;
+
+        return Padding(
+          padding: const EdgeInsets.all(12),
+          child: GridView.builder(
+            gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+              crossAxisCount: 2,
+              crossAxisSpacing: 12,
+              mainAxisSpacing: 12,
+              childAspectRatio: cardWidth / cardHeight,
+            ),
+            itemCount: _recetasFiltradas.length,
+            itemBuilder: (context, index) {
+              final receta = _recetasFiltradas[index];
+              return RecipeCard(
+                nombre: receta.nombre,
+                categoria: receta.categoria,
+                valoracion: 4.5,
+                onTap: () => _mostrarDetallesReceta(receta),
+              );
+            },
+          ),
         );
       },
     );
@@ -460,119 +476,16 @@ class _PantallaMisRecetasState extends State<PantallaMisRecetas> {
             itemCount: _recetasGuardadas.length,
             itemBuilder: (context, index) {
               final receta = _recetasGuardadas[index];
-              return _RecetaCard(
-                receta: receta,
+              return RecipeCard(
+                nombre: receta.nombre,
+                categoria: receta.categoria,
+                valoracion: 4.5,
                 onTap: () => _mostrarDetallesReceta(receta),
               );
             },
           ),
         );
       },
-    );
-  }
-}
-
-class _RecetaCard extends StatelessWidget {
-  final Recipe receta;
-  final VoidCallback onTap;
-
-  const _RecetaCard({required this.receta, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: onTap,
-      child: Container(
-        decoration: BoxDecoration(
-          borderRadius: BorderRadius.circular(12),
-          border: Border.all(color: Colors.grey[300]!, width: 2),
-          color: Colors.white,
-        ),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            ClipRRect(
-              borderRadius: const BorderRadius.only(
-                topLeft: Radius.circular(10),
-                topRight: Radius.circular(10),
-              ),
-              child: Container(
-                height: 120,
-                width: double.infinity,
-                color: Colors.lightBlue[300],
-              ),
-            ),
-            Expanded(
-              child: Padding(
-                padding: const EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          receta.nombre,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: const TextStyle(
-                            fontSize: 12,
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 4),
-                        Text(
-                          receta.descripcion,
-                          maxLines: 2,
-                          overflow: TextOverflow.ellipsis,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.schedule,
-                              size: 14,
-                              color: Colors.grey[500],
-                            ),
-                            const SizedBox(width: 4),
-                            Text(
-                              receta.tiempo,
-                              maxLines: 1,
-                              overflow: TextOverflow.ellipsis,
-                              style: TextStyle(
-                                fontSize: 11,
-                                color: Colors.grey[600],
-                              ),
-                            ),
-                          ],
-                        ),
-                        Text(
-                          receta.categoria,
-                          style: TextStyle(
-                            fontSize: 11,
-                            color: Colors.grey[600],
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ],
-        ),
-      ),
     );
   }
 }
