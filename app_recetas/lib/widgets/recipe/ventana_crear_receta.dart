@@ -1,6 +1,5 @@
 import 'package:app_recetas/model/recipe.dart';
 import 'package:flutter/material.dart';
- 
 
 class DialogoCrearReceta extends StatefulWidget {
   final List<String> categorias;

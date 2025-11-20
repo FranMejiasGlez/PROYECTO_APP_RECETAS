@@ -1,21 +1,26 @@
 import 'package:app_recetas/config/routes.dart';
 import 'package:app_recetas/widgets/recipe/user_avatar.dart';
-
+import 'package:app_recetas/model/recipe.dart';
 import 'package:flutter/material.dart';
-
+import 'package:app_recetas/utils/app_theme.dart';
 import '../widgets/recipe/recipe_filter_dropdown.dart';
 import '../widgets/recipe/recipe_search_bar.dart';
 import '../widgets/recipe/recipe_card.dart';
 import '../widgets/recipe/recipe_carousel.dart';
 
 class PantallaBiblioteca extends StatefulWidget {
-  const PantallaBiblioteca({Key? key}) : super(key: key);
+  final List<Recipe>? listaRecetas;
+  const PantallaBiblioteca({
+    Key? key,
+    this.listaRecetas, // Recibe la lista de PantallaRecetas
+  }) : super(key: key);
 
   @override
   State<PantallaBiblioteca> createState() => _PantallaBibliotecaState();
 }
 
 class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
+  List<Recipe>? _recetasLocales;
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _filtroSeleccionado = 'Todos';
@@ -58,6 +63,44 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
     }).toList();
   }
 
+  /*  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Leer argumentos SIEMPRE
+    final args = ModalRoute.of(context)?.settings.arguments;
+
+    if (args is List<Recipe>) {
+      setState(() {
+        _recetasLocales = args;
+      });
+      print('📚 Biblioteca recibió ${args.length} recetas'); // Debug
+    } else if (widget.listaRecetas != null) {
+      setState(() {
+        _recetasLocales = widget.listaRecetas;
+      });
+      print(
+        '📚 Biblioteca recibió ${widget.listaRecetas!.length} recetas del constructor',
+      ); // Debug
+    }
+  }*/
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // 2. Leer los argumentos de la ruta y guardarlos en _recetasLocales
+    if (_recetasLocales == null) {
+      final args = ModalRoute.of(context)?.settings.arguments;
+
+      if (args is List<Recipe>) {
+        _recetasLocales = args;
+      } else {
+        // En caso de que se navegue de otra forma, usar el constructor
+        _recetasLocales = widget.listaRecetas;
+      }
+    }
+  }
+
   @override
   void initState() {
     super.initState();
@@ -73,13 +116,7 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment(0.8, 1),
-            colors: [Color(0xFF25CCAD), Color(0xFFFEC601), Color(0xFFEA7317)],
-          ),
-        ),
+        decoration: BoxDecoration(gradient: AppTheme.appGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -113,9 +150,19 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
                   ),
                   Padding(
                     padding: const EdgeInsets.fromLTRB(0, 10, 0, 0),
+
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        Navigator.pushNamed(context, AppRoutes.misrecetas);
+                        print(
+                          '📖 Navegando a Mis Recetas con ${_recetasLocales?.length ?? 0} recetas',
+                        ); // Debug
+                        Navigator.pushNamed(
+                          context,
+
+                          AppRoutes.misrecetas,
+
+                          arguments: _recetasLocales,
+                        );
                       },
 
                       label: const Text('Mis Recetas'),
@@ -261,12 +308,14 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
   Widget _buildHomeContent() {
     return SingleChildScrollView(
       child: Padding(
-        padding: EdgeInsetsGeometry.all(80),
+        padding: EdgeInsets.all(16),
         child: Column(
           children: [
             RecipeCarousel(
               title: 'Mis Recetas',
-              recipes: List.generate(10, (i) => 'Receta $i'),
+              recipes: _recetasLocales != null && _recetasLocales!.isNotEmpty
+                  ? _recetasLocales!.map((r) => r.nombre).toList()
+                  : ['No hay recetas'],
             ),
             RecipeCarousel(
               title: 'Guardados',

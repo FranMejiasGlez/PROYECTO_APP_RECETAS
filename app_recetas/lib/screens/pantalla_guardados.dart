@@ -1,7 +1,7 @@
 import 'package:app_recetas/config/routes.dart';
 import 'package:app_recetas/model/recipe.dart';
 import 'package:app_recetas/widgets/recipe/user_avatar.dart';
-
+import 'package:app_recetas/utils/app_theme.dart';
 import 'package:flutter/material.dart';
 
 import '../widgets/recipe/recipe_filter_dropdown.dart';
@@ -97,7 +97,8 @@ class _PantallaGuardadosState extends State<PantallaGuardados> {
         _searchQuery.toLowerCase(),
       );
       final matchesFilter =
-          _filtroSeleccionado == 'Todos' || receta.categoria == _filtroSeleccionado;
+          _filtroSeleccionado == 'Todos' ||
+          receta.categoria == _filtroSeleccionado;
       return matchesSearch && matchesFilter;
     }).toList();
   }
@@ -146,10 +147,7 @@ class _PantallaGuardadosState extends State<PantallaGuardados> {
                   if (receta.descripcion.isNotEmpty)
                     Text(
                       receta.descripcion,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   const SizedBox(height: 16),
                   Container(
@@ -339,13 +337,7 @@ class _PantallaGuardadosState extends State<PantallaGuardados> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment(0.8, 1),
-            colors: [Color(0xFF25CCAD), Color(0xFFFEC601), Color(0xFFEA7317)],
-          ),
-        ),
+        decoration: BoxDecoration(gradient: AppTheme.appGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -491,7 +483,8 @@ class _PantallaGuardadosState extends State<PantallaGuardados> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = constraints.maxWidth;
-        final cardWidth = (screenWidth - 36) / 2; // 36 = padding(12*2) + spacing(12)
+        final cardWidth =
+            (screenWidth - 36) / 2; // 36 = padding(12*2) + spacing(12)
         final cardHeight = cardWidth * 1.2; // Proporción 1:1.2 para tarjetas
 
         return Padding(
