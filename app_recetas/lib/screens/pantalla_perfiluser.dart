@@ -15,18 +15,41 @@ class _PantallaPerfilUserState extends State<PantallaPerfilUser> {
 }*/
 import 'package:app_recetas/config/routes.dart';
 import 'package:flutter/material.dart';
+import 'package:app_recetas/utils/app_theme.dart';
+import 'package:app_recetas/widgets/recipe/user_avatar.dart';
 
+// ---------------------------------------------------------------------------
+// ✅ ZONA GLOBAL: DATOS INICIALES
+// ---------------------------------------------------------------------------
 
+// LISTA 1: IZQUIERDA (Tus seguidores)
+// Hemos cambiado a Carlos y Sofia a 'true' para simular que ya los seguías de antes.
+List<Map<String, dynamic>> listaIzquierdaSeguidores = [
+  {"name": "Pablo", "img": "https://robohash.org/pablo?set=set5", "loSigo": false},
+  {"name": "Maria", "img": "https://robohash.org/maria?set=set5", "loSigo": false},
+  // ¡OJO! Carlos ya lo seguimos al iniciar
+  {"name": "Carlos", "img": "https://robohash.org/carlos?set=set5", "loSigo": true},
+  {"name": "Lucia", "img": "https://robohash.org/lucia?set=set5", "loSigo": false},
+  {"name": "Andy", "img": "https://robohash.org/andy?set=set5", "loSigo": false},
+  // ¡OJO! Sofia ya la seguimos al iniciar
+  {"name": "Sofia", "img": "https://robohash.org/sofia?set=set5", "loSigo": true},
+];
 
-final List<Map<String, String>> _usuariosSugeridos = [
-    {"name": "Pablo", "img": "https://robohash.org/pablo?set=set5"},
-    {"name": "Maria", "img": "https://robohash.org/maria?set=set5"},
-    {"name": "Carlos", "img": "https://robohash.org/carlos?set=set5"},
-    {"name": "Lucia", "img": "https://robohash.org/lucia?set=set5"},
-    {"name": "Andy", "img": "https://robohash.org/andy?set=set5"},
-    {"name": "Sofia", "img": "https://robohash.org/sofia?set=set5"},
-  ];
-int numSeguidos = 0;
+// LISTA 2: DERECHA (Gente que tú sigues)
+// Incluye los Chefs por defecto Y TAMBIÉN a Carlos y Sofia para que coincida al arranque.
+List<Map<String, dynamic>> listaDerechaSeguidos = [
+  {"name": "Chef Ramsay", "img": "https://robohash.org/ramsay?set=set5", "loSigo": true},
+  {"name": "Jamie Oliver", "img": "https://robohash.org/jamie?set=set5", "loSigo": true},
+  // Añadimos aquí los que están en true en la izquierda para mantener la coherencia inicial
+  {"name": "Carlos", "img": "https://robohash.org/carlos?set=set5", "loSigo": true},
+  {"name": "Sofia", "img": "https://robohash.org/sofia?set=set5", "loSigo": true},
+];
+
+// Contadores globales
+int numSeguidores = 6; 
+int numSeguidos = 3; 
+
+// ---------------------------------------------------------------------------
 
 class PantallaPerfilUser extends StatefulWidget {
   const PantallaPerfilUser({super.key});
@@ -36,36 +59,32 @@ class PantallaPerfilUser extends StatefulWidget {
 }
 
 class _PantallaPerfilUserState extends State<PantallaPerfilUser> {
-  int numSeguidores =
-      0; // emplo inicialEjemplo inicial esto luego se actualizará dinámicamente
-  //int numSeguidos = 0;
 
-  //Datos locales de usuarios sugeridos
- /* final List<Map<String, String>> _usuariosSugeridos = [
-    {"name": "Pablo", "img": "https://robohash.org/pablo?set=set5"},
-    {"name": "Maria", "img": "https://robohash.org/maria?set=set5"},
-    {"name": "Carlos", "img": "https://robohash.org/carlos?set=set5"},
-    {"name": "Lucia", "img": "https://robohash.org/lucia?set=set5"},
-    {"name": "Andy", "img": "https://robohash.org/andy?set=set5"},
-    {"name": "Sofia", "img": "https://robohash.org/sofia?set=set5"},
-  ];*/
+  @override
+  void initState() {
+    super.initState();
+    numSeguidos = listaDerechaSeguidos.length;
+  }
 
-  // 2. LÓGICA: Función para seguir a un usuario
-  void _seguirUsuario(int index) {
-    String nombreUsuario = _usuariosSugeridos[index]["name"]!;
+  // LÓGICA DE SINCRONIZACIÓN (Igual que antes)
+  void _toggleSeguirDesdeIzquierda(int index) {
     setState(() {
-      numSeguidos++;
-      //Quitamos al usuario de esta lista (desaparece y "sube" el siguiente)
-      _usuariosSugeridos.removeAt(index);
-    });
+      var usuarioIzquierda = listaIzquierdaSeguidores[index];
+      bool yaLoSigo = usuarioIzquierda["loSigo"];
 
-    //Snackbar de confirmación
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text("¡Ahora sigues a $nombreUsuario!"),
-        duration: Duration(milliseconds: 600),
-      ),
-    );
+      if (yaLoSigo) {
+        // Dejar de seguir
+        usuarioIzquierda["loSigo"] = false;
+        listaDerechaSeguidos.removeWhere((u) => u["name"] == usuarioIzquierda["name"]);
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Dejaste de seguir a ${usuarioIzquierda["name"]}"), backgroundColor: Colors.redAccent, duration: const Duration(milliseconds: 600)));
+      } else {
+        // Empezar a seguir
+        usuarioIzquierda["loSigo"] = true;
+        listaDerechaSeguidos.add({"name": usuarioIzquierda["name"], "img": usuarioIzquierda["img"], "loSigo": true});
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("¡Ahora sigues a ${usuarioIzquierda["name"]}!"), backgroundColor: Colors.green, duration: const Duration(milliseconds: 600)));
+      }
+      numSeguidos = listaDerechaSeguidos.length;
+    });
   }
 
   @override
@@ -74,149 +93,51 @@ class _PantallaPerfilUserState extends State<PantallaPerfilUser> {
       body: Stack(
         children: [
           // Fondo Degradado
-          Container(
-            decoration: const BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [
-                  Color(0xFF53F436),
-                  Color(0xFFF2F436),
-                  Color(0xFFFFB600),
-                ],
-              ),
-            ),
-          ),
+          Container(decoration: BoxDecoration(gradient: AppTheme.appGradient)),
 
           SafeArea(
             child: Column(
               children: [
                 const SizedBox(height: 10),
-
-                // --- HEADER (Navegación y Perfil) ---
+                // --- HEADER (Sin cambios) ---
                 Padding(
-                  padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                  padding: const EdgeInsets.all(16.0),
                   child: Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      // 1. Botón Atrás
-                      IconButton(
-                        icon: const Icon(
-                          Icons.arrow_back,
-                          size: 30,
-                          color: Colors.black,
+                      ConstrainedBox(
+                        constraints: const BoxConstraints(maxWidth: 140),
+                        child: ElevatedButton(
+                          onPressed: () => Navigator.pop(context),
+                          style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFEC601), foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 5),
+                          child: const FittedBox(fit: BoxFit.scaleDown, child: Icon(Icons.arrow_back)),
                         ),
-                        onPressed: () => Navigator.pop(context),
                       ),
-
-                      // 2. Botones Centrales
                       Padding(
-                        padding: const EdgeInsets.only(
-                          left: 40.0,
-                        ), // Ajuste visual a la derecha
+                        padding: const EdgeInsets.only(left: 40.0),
                         child: Column(
                           children: [
-                            Container(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 40,
-                                vertical: 12,
-                              ),
-                              decoration: BoxDecoration(
-                                color: const Color(0xFFEFB68E),
-                                borderRadius: BorderRadius.circular(30),
-                              ),
-                              child: const Text(
-                                "Tu Perfil",
-                                style: TextStyle(
-                                  color: Colors.brown,
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                            ),
+                            Container(padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 12), child: const Text('Tu Perfil', textAlign: TextAlign.center, style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold))),
                             const SizedBox(height: 20),
-
-                            // Botón Biblioteca con Navegación
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.pushNamed(
-                                  context,
-                                  AppRoutes.biblioteca,
-                                );
-                              },
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 30,
-                                  vertical: 12,
-                                ),
-                                decoration: BoxDecoration(
-                                  color: const Color(0xFF1CC4A8),
-                                  borderRadius: BorderRadius.circular(30),
-                                ),
-                                child: const Text(
-                                  "Biblioteca",
-                                  style: TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                              ),
+                            ElevatedButton.icon(
+                              onPressed: () => Navigator.pushNamed(context, AppRoutes.biblioteca),
+                              label: const Text('Biblioteca'),
+                              style: ElevatedButton.styleFrom(backgroundColor: const Color(0xFFFEC601), foregroundColor: Colors.black, padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10), shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)), elevation: 3, minimumSize: const Size(80, 36)),
                             ),
                           ],
                         ),
                       ),
-
-                      // 3. Ajustes y Perfil (Alineación corregida)
                       Row(
                         mainAxisSize: MainAxisSize.min,
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          // Botón Ajustes con Navegación
-                          Padding(
-                            padding: const EdgeInsets.only(
-                              top: 15.0,
-                              right: 10.0,
-                            ),
-                            child: GestureDetector(
-                              onTap: () {
-                                Text(
-                                  "Ir a Ajustes",
-                                ); //Enlace a pantalla ajustes
-                              },
-                              child: const Icon(
-                                Icons.settings_outlined,
-                                size: 30,
-                                color: Colors.black,
-                              ),
-                            ),
-                          ),
-
-                          // Foto y Nombre
+                          Padding(padding: const EdgeInsets.only(top: 30.0, right: 20.0), child: GestureDetector(onTap: () {}, child: const Icon(Icons.settings_outlined, size: 50, color: Colors.black))),
                           Column(
                             children: [
-                              Container(
-                                width: 60,
-                                height: 60,
-                                decoration: const BoxDecoration(
-                                  color: Color(0xFF1CC4A8),
-                                  shape: BoxShape.circle,
-                                ),
-                                child: const Icon(
-                                  Icons.person_outline,
-                                  size: 40,
-                                  color: Colors.purple,
-                                ),
-                              ),
+                              UserAvatar(imageUrl: 'https://raw.githubusercontent.com/FranMejiasGlez/TallerFlutter/main/sandbox_fran/imperativo/img/Logo.png', onTap: () {}),
                               const SizedBox(height: 5),
-                              const Text(
-                                "Nombre\nUsuario",
-                                textAlign: TextAlign.center,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  fontWeight: FontWeight.w600,
-                                  color: Colors.black,
-                                ),
-                              ),
+                              const Text("Nombre\nUsuario", textAlign: TextAlign.center, style: TextStyle(fontSize: 12, fontWeight: FontWeight.w600, color: Colors.black)),
                             ],
                           ),
                         ],
@@ -227,68 +148,64 @@ class _PantallaPerfilUserState extends State<PantallaPerfilUser> {
 
                 const SizedBox(height: 40),
 
-                // --- LISTAS DINÁMICAS ---
+                // --- ZONA DE LISTAS (IZQUIERDA vs DERECHA) ---
                 Expanded(
                   child: Row(
                     children: [
-                      // COLUMNA IZQUIERDA: SEGUIDORES (Lista interactiva)
+                      // 1. COLUMNA IZQUIERDA: TUS SEGUIDORES (Ahora con estilo de tarjeta)
                       Expanded(
                         child: Column(
                           children: [
-                            // Contador Dinámico
-                            Text(
-                              "$numSeguidores Seguidores",
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black,
-                              ),
-                            ),
+                            Text("$numSeguidores Seguidores", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black)),
                             const SizedBox(height: 20),
-
-                            // Lista Generada Automáticamente
                             Expanded(
-                              child: _usuariosSugeridos.isEmpty
-                                  ? const Center(child: Text("¡Estás al día!"))
-                                  : ListView.builder(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 10,
-                                      ),
-                                      itemCount: _usuariosSugeridos.length,
-                                      itemBuilder: (context, index) {
-                                        final user = _usuariosSugeridos[index];
-                                        return UserCard(
-                                          name: user["name"]!,
-                                          imageAsset: user["img"]!,
-                                          // Pasamos la función para que el botón sepa qué hacer
-                                          onFollowPressed: () =>
-                                              _seguirUsuario(index),
-                                        );
-                                      },
-                                    ),
+                              child: ListView.builder(
+                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                itemCount: listaIzquierdaSeguidores.length,
+                                itemBuilder: (context, index) {
+                                  final user = listaIzquierdaSeguidores[index];
+                                  // Usamos el NUEVO widget UserCardIzquierdaStyle
+                                  return UserCardIzquierdaStyle(
+                                    name: user["name"],
+                                    imageAsset: user["img"],
+                                    isFollowing: user["loSigo"], 
+                                    onFollowPressed: () => _toggleSeguirDesdeIzquierda(index),
+                                  );
+                                },
+                              ),
                             ),
                           ],
                         ),
                       ),
 
-                      // COLUMNA DERECHA: SEGUIDOS (Solo contador dinámico por ahora)
+                      // Línea divisoria
+                      Container(width: 1, color: Colors.black12),
+
+                      // 2. COLUMNA DERECHA: GENTE QUE SIGUES (Estilo tarjeta simple)
                       Expanded(
                         child: Column(
                           children: [
-                            // Contador Dinámico (cambia cuando sigues a alguien)
-                            Text(
-                              "$numSeguidos Seguidos",
-                              style: const TextStyle(
-                                fontSize: 18,
-                                fontWeight: FontWeight.w500,
-                                color: Colors.black,
-                              ),
-                            ),
+                            Text("$numSeguidos Seguidos", style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w500, color: Colors.black)),
                             const SizedBox(height: 20),
-                            // Aquí podrías poner otra lista o dejarlo estático
-                            const Expanded(
-                              child: Center(
-                                child: Text("Lista de seguidos..."),
+                            Expanded(
+                              child: ListView.builder(
+                                padding: const EdgeInsets.symmetric(horizontal: 10),
+                                itemCount: listaDerechaSeguidos.length,
+                                itemBuilder: (context, index) {
+                                  final user = listaDerechaSeguidos[index];
+                                  // Tarjeta simple derecha (relicada el estilo)
+                                  return Card(
+                                    color: Colors.white.withOpacity(0.6),
+                                    margin: const EdgeInsets.only(bottom: 10),
+                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                                    child: ListTile(
+                                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
+                                      leading: CircleAvatar(radius: 18, backgroundImage: NetworkImage(user['img'])),
+                                      title: Text(user['name'], style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
+                                      trailing: const Icon(Icons.check_circle, color: Colors.green, size: 20),
+                                    ),
+                                  );
+                                },
                               ),
                             ),
                           ],
@@ -306,76 +223,73 @@ class _PantallaPerfilUserState extends State<PantallaPerfilUser> {
   }
 }
 
-// --- WIDGET USER CARD MODIFICADO PARA RECIBIR ACCIÓN ---
-class UserCard extends StatelessWidget {
+// --- NUEVO WIDGET PARA LA IZQUIERDA ---
+// Adopta el estilo de "Card" semitransparente y usa ListTile
+class UserCardIzquierdaStyle extends StatelessWidget {
   final String name;
   final String imageAsset;
-  final VoidCallback onFollowPressed; // Nueva variable: La acción a ejecutar
+  final bool isFollowing;
+  final VoidCallback onFollowPressed;
 
-  const UserCard({
+  const UserCardIzquierdaStyle({
     super.key,
     required this.name,
     required this.imageAsset,
+    required this.isFollowing,
     required this.onFollowPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 25.0),
-      child: Row(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Column(
-            children: [
-              CircleAvatar(
-                radius: 30,
-                backgroundColor: Colors.grey[300],
-                backgroundImage: NetworkImage(imageAsset),
-              ),
-              const SizedBox(height: 5),
-              Text(name, style: const TextStyle(fontWeight: FontWeight.bold)),
-            ],
-          ),
-          const SizedBox(width: 8),
-          Expanded(
-            child: Container(
-              margin: const EdgeInsets.only(top: 10),
-              child: ElevatedButton(
-                onPressed:
-                    onFollowPressed, // Ejecutamos la función que viene del padre
-                style: ElevatedButton.styleFrom(
-                  backgroundColor: Colors.grey[200],
-                  foregroundColor: Colors.black,
-                  elevation: 2,
-                  padding: const EdgeInsets.symmetric(
-                    horizontal: 5,
-                    vertical: 5,
+    // Usamos la misma estructura de Card que en la derecha
+    return Card(
+      // Color blanquecino semitransparente
+      color: Colors.white.withOpacity(0.6),
+      margin: const EdgeInsets.only(bottom: 10),
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+      child: ListTile(
+        contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
+        // Avatar a la izquierda
+        leading: CircleAvatar(
+          radius: 20,
+          backgroundColor: Colors.grey[200],
+          backgroundImage: NetworkImage(imageAsset),
+        ),
+        // Nombre en el centro
+        title: Text(
+          name,
+          style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
+          overflow: TextOverflow.ellipsis,
+        ),
+        // Botón a la derecha (trailing)
+        trailing: SizedBox(
+          width: 110, // Ancho fijo para que el botón quepa bien
+          height: 32,
+          child: ElevatedButton(
+            onPressed: onFollowPressed,
+            style: ElevatedButton.styleFrom(
+              backgroundColor: isFollowing ? const Color(0xFFFF6B6B) : Colors.grey[200],
+              foregroundColor: isFollowing ? Colors.white : Colors.black,
+              elevation: 0, // Sin sombra para que se vea plano sobre la tarjeta
+              padding: const EdgeInsets.symmetric(horizontal: 8),
+              shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(isFollowing ? Icons.remove : Icons.add, size: 14),
+                const SizedBox(width: 4),
+                Flexible(
+                  child: Text(
+                    isFollowing ? "Dejar de seguir" : "Seguir", // Texto más corto para que quepa
+                    style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
+                    overflow: TextOverflow.ellipsis,
                   ),
-                  shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  minimumSize: const Size(0, 30),
                 ),
-                child: const Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Icon(Icons.add, size: 16),
-                    SizedBox(width: 2),
-                    Flexible(
-                      child: Text(
-                        "Seguir también",
-                        style: TextStyle(fontSize: 10),
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
+              ],
             ),
           ),
-        ],
+        ),
       ),
     );
   }
