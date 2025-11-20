@@ -7,15 +7,21 @@ import 'package:flutter/material.dart';
 import '../widgets/recipe/recipe_filter_dropdown.dart';
 import '../widgets/recipe/recipe_search_bar.dart';
 import '../widgets/recipe/recipe_card.dart';
+import 'package:app_recetas/utils/app_theme.dart';
 
 class PantallaMisRecetas extends StatefulWidget {
-  const PantallaMisRecetas({Key? key}) : super(key: key);
+  final List<Recipe>? lista;
+  const PantallaMisRecetas({
+    Key? key,
+    this.lista, // Recibe la nueva receta
+  }) : super(key: key);
 
   @override
   State<PantallaMisRecetas> createState() => _PantallaMisRecetasState();
 }
 
 class _PantallaMisRecetasState extends State<PantallaMisRecetas> {
+  List<Recipe> _recetasGuardadas = [];
   final TextEditingController _searchController = TextEditingController();
   String _searchQuery = '';
   String _filtroSeleccionado = 'Todos';
@@ -28,76 +34,14 @@ class _PantallaMisRecetasState extends State<PantallaMisRecetas> {
     'Mexicana',
   ];
 
-  final List<Recipe> _recetasGuardadas = [
-    Recipe(
-      nombre: 'Paella Valenciana',
-      categoria: 'Española',
-      descripcion: 'Deliciosa paella tradicional valenciana',
-      dificultad: 'Medio',
-      tiempo: '45 min',
-      servings: 4,
-      pasos: ['Paso 1', 'Paso 2', 'Paso 3'],
-      ingredientes: ['Arroz', 'Azafrán', 'Pollo'],
-    ),
-    Recipe(
-      nombre: 'Tortilla de Patatas',
-      categoria: 'Española',
-      descripcion: 'Tortilla española clásica',
-      dificultad: 'Fácil',
-      tiempo: '20 min',
-      servings: 3,
-      pasos: ['Paso 1', 'Paso 2'],
-      ingredientes: ['Patatas', 'Huevos', 'Cebolla'],
-    ),
-    Recipe(
-      nombre: 'Pizza Margarita',
-      categoria: 'Italiana',
-      descripcion: 'Pizza italiana auténtica',
-      dificultad: 'Medio',
-      tiempo: '30 min',
-      servings: 2,
-      pasos: ['Paso 1', 'Paso 2', 'Paso 3'],
-      ingredientes: ['Harina', 'Tomate', 'Mozzarella'],
-    ),
-    Recipe(
-      nombre: 'Sushi Roll',
-      categoria: 'Japonesa',
-      descripcion: 'Sushi roll casero',
-      dificultad: 'Difícil',
-      tiempo: '40 min',
-      servings: 2,
-      pasos: ['Paso 1', 'Paso 2', 'Paso 3', 'Paso 4'],
-      ingredientes: ['Arroz', 'Nori', 'Pepino', 'Aguacate'],
-    ),
-    Recipe(
-      nombre: 'Tacos al Pastor',
-      categoria: 'Mexicana',
-      descripcion: 'Tacos mexicanos tradicionales',
-      dificultad: 'Medio',
-      tiempo: '35 min',
-      servings: 4,
-      pasos: ['Paso 1', 'Paso 2', 'Paso 3'],
-      ingredientes: ['Carne', 'Tortillas', 'Cebolla'],
-    ),
-    Recipe(
-      nombre: 'Lasaña Boloñesa',
-      categoria: 'Italiana',
-      descripcion: 'Lasaña casera con salsa boloñesa',
-      dificultad: 'Medio',
-      tiempo: '50 min',
-      servings: 6,
-      pasos: ['Paso 1', 'Paso 2', 'Paso 3', 'Paso 4'],
-      ingredientes: ['Pasta', 'Carne molida', 'Tomate', 'Queso'],
-    ),
-  ];
-
   List<Recipe> get _recetasFiltradas {
     return _recetasGuardadas.where((receta) {
       final matchesSearch = receta.nombre.toLowerCase().contains(
         _searchQuery.toLowerCase(),
       );
       final matchesFilter =
-          _filtroSeleccionado == 'Todos' || receta.categoria == _filtroSeleccionado;
+          _filtroSeleccionado == 'Todos' ||
+          receta.categoria == _filtroSeleccionado;
       return matchesSearch && matchesFilter;
     }).toList();
   }
@@ -146,10 +90,7 @@ class _PantallaMisRecetasState extends State<PantallaMisRecetas> {
                   if (receta.descripcion.isNotEmpty)
                     Text(
                       receta.descripcion,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
                     ),
                   const SizedBox(height: 16),
                   Container(
@@ -325,6 +266,24 @@ class _PantallaMisRecetasState extends State<PantallaMisRecetas> {
   }
 
   @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    // Leer argumentos de la ruta SIEMPRE (quitar la condición isEmpty)
+    final args = ModalRoute.of(context)?.settings.arguments;
+
+    if (args is List<Recipe> && args.isNotEmpty) {
+      setState(() {
+        _recetasGuardadas = List<Recipe>.from(args);
+      });
+    } else if (widget.lista != null && widget.lista!.isNotEmpty) {
+      setState(() {
+        _recetasGuardadas = List<Recipe>.from(widget.lista!);
+      });
+    }
+  }
+
+  @override
   void initState() {
     super.initState();
   }
@@ -339,13 +298,7 @@ class _PantallaMisRecetasState extends State<PantallaMisRecetas> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment(0.8, 1),
-            colors: [Color(0xFF25CCAD), Color(0xFFFEC601), Color(0xFFEA7317)],
-          ),
-        ),
+        decoration: BoxDecoration(gradient: AppTheme.appGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -491,7 +444,8 @@ class _PantallaMisRecetasState extends State<PantallaMisRecetas> {
     return LayoutBuilder(
       builder: (context, constraints) {
         final screenWidth = constraints.maxWidth;
-        final cardWidth = (screenWidth - 36) / 2; // 36 = padding(12*2) + spacing(12)
+        final cardWidth =
+            (screenWidth - 36) / 2; // 36 = padding(12*2) + spacing(12)
         final cardHeight = cardWidth * 1.2; // Proporción 1:1.2 para tarjetas
 
         return Padding(

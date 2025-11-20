@@ -1,18 +1,20 @@
 import 'package:app_recetas/config/routes.dart';
 import 'package:app_recetas/model/recipe.dart';
-import 'package:app_recetas/screens/pantalla_biblioteca.dart';
 import 'package:app_recetas/utils/network.dart';
 import 'package:app_recetas/widgets/recipe/user_avatar.dart';
 import 'package:app_recetas/widgets/recipe/ventana_crear_receta.dart';
 import 'package:flutter/material.dart';
-
+import 'package:app_recetas/utils/app_theme.dart';
 import '../widgets/recipe/recipe_filter_dropdown.dart';
 import '../widgets/recipe/recipe_search_bar.dart';
 import '../widgets/recipe/recipe_card.dart';
 import '../widgets/recipe/recipe_carousel.dart';
 
 class PantallaRecetas extends StatefulWidget {
-  const PantallaRecetas({Key? key}) : super(key: key);
+  const PantallaRecetas({
+    Key? key,
+    // Recibe la nueva receta
+  }) : super(key: key);
 
   @override
   State<PantallaRecetas> createState() => _PantallaRecetasState();
@@ -20,6 +22,7 @@ class PantallaRecetas extends StatefulWidget {
 
 class _PantallaRecetasState extends State<PantallaRecetas> {
   final TextEditingController _searchController = TextEditingController();
+  List<Recipe> listaRecetas = [];
   String _searchQuery = '';
   String _filtroSeleccionado = 'Todos';
 
@@ -80,13 +83,7 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
   Widget build(BuildContext context) {
     return Scaffold(
       body: Container(
-        decoration: const BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topLeft,
-            end: Alignment(0.8, 1),
-            colors: [Color(0xFF25CCAD), Color(0xFFFEC601), Color(0xFFEA7317)],
-          ),
-        ),
+        decoration: BoxDecoration(gradient: AppTheme.appGradient),
         child: SafeArea(
           child: Column(
             children: [
@@ -116,7 +113,15 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
             constraints: const BoxConstraints(maxWidth: 140),
             child: ElevatedButton(
               onPressed: () {
-                Navigator.pushNamed(context, AppRoutes.biblioteca);
+                print(
+                  '📚 Navegando a biblioteca con ${listaRecetas.length} recetas',
+                );
+                // Pasar la lista de recetas cuando navegues a biblioteca
+                Navigator.pushNamed(
+                  context,
+                  AppRoutes.biblioteca,
+                  arguments: listaRecetas,
+                );
               },
               style: ElevatedButton.styleFrom(
                 backgroundColor: const Color(0xFFFEC601),
@@ -153,9 +158,8 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
           UserAvatar(
             imageUrl:
                 'https://raw.githubusercontent.com/FranMejiasGlez/TallerFlutter/main/sandbox_fran/imperativo/img/Logo.png',
-            onTap: () =>Navigator.pushNamed(context, AppRoutes.perfilUser),
+            onTap: () => Navigator.pushNamed(context, AppRoutes.perfilUser),
           ),
-          
         ],
       ),
     );
@@ -246,7 +250,7 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
             final Recipe? nueva = await showDialog<Recipe>(
               context: context,
               builder: (context) => DialogoCrearReceta(
-                categorias: _categorias,
+                categorias: _categorias.where((c) => c != 'Todos').toList(),
                 dificultades: _dificultad,
               ),
             );
@@ -255,14 +259,24 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
 
             // opcion A: guardar en servidor y en UI
             try {
-              await saveRecipeToServer(nueva); // import in the header: utils/network.dart
-              setState(() {
-                _todasLasRecetas.add(nueva.toJson());
-              });
-              ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Receta guardada en servidor')));
+              await saveRecipeToServer(
+                nueva,
+              ); // import in the header: utils/network.dart
+
+              ScaffoldMessenger.of(context).showSnackBar(
+                const SnackBar(content: Text('Receta guardada en servidor')),
+              );
             } catch (e) {
-              ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Error guardando: $e')));
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Error guardando: $e')));
             }
+            setState(() {
+              listaRecetas.add(nueva);
+              _todasLasRecetas.add(nueva.toJson());
+            });
+            print('✅ Receta creada: ${nueva.nombre}'); // Debug
+            print('📋 Total recetas en lista: ${listaRecetas.length}'); // Debug
           },
 
           style: ElevatedButton.styleFrom(
