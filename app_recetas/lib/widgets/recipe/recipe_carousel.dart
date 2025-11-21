@@ -1,6 +1,8 @@
+import 'package:app_recetas/screens/pantalla_guardados.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart'; // Necesario para PointerDeviceKind
 import 'package:app_recetas/utils/app_theme.dart';
+import 'package:app_recetas/screens/pantalla_biblioteca.dart';
 
 class RecipeCarousel extends StatelessWidget {
   final String title;
@@ -28,22 +30,19 @@ class RecipeCarousel extends StatelessWidget {
         ),
         SizedBox(
           height: 400,
-          // 1. AÑADIDO: Configuración para permitir arrastrar con ratón y dedo
           child: ScrollConfiguration(
             behavior: ScrollConfiguration.of(context).copyWith(
-              dragDevices: {
-                PointerDeviceKind.touch,
-                PointerDeviceKind
-                    .mouse, // <--- ESTO permite arrastrar con el ratón
-              },
+              dragDevices: {PointerDeviceKind.touch, PointerDeviceKind.mouse},
             ),
             child: PageView.builder(
-              // 2. AÑADIDO: BouncingScrollPhysics da un tacto más natural
               physics: const BouncingScrollPhysics(),
               controller: PageController(viewportFraction: 0.8),
               itemCount: recipes.length,
               itemBuilder: (context, index) {
                 final String recipeName = recipes[index];
+                // Nota: Aquí asigno lo mismo porque no tengo tu dato de raciones,
+                // cámbialo por tu variable real si la tienes.
+                // final String recipeServings = ;
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -56,43 +55,62 @@ class RecipeCarousel extends StatelessWidget {
                     child: Stack(
                       fit: StackFit.expand,
                       children: [
-                        // --- CAPA 1: FONDO ---
-                        Container(
-                          child: Image.network(
-                            "https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480_1_5x/img/recipe/ras/Assets/4ADF5D92-29D0-4EB7-8C8B-5C7DAA0DA74A/Derivates/E5E1004A-1FF0-448B-87AF-31393870B653.jpg",
-                          ),
+                        // --- CAPA 1: FONDO (IMAGEN) ---
+                        Image.network(
+                          "https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480_1_5x/img/recipe/ras/Assets/4ADF5D92-29D0-4EB7-8C8B-5C7DAA0DA74A/Derivates/E5E1004A-1FF0-448B-87AF-31393870B653.jpg",
+                          fit: BoxFit
+                              .cover, // IMPORTANTE: Para que cubra toda la tarjeta
                         ),
 
-                        // --- CAPA 2: CONTENIDO ---
+                        // --- CAPA 2: CONTENIDO CON FONDO OSCURO ---
                         Center(
                           child: Container(
-                            // 1. Añadimos un margen interno al contenedor del fondo
+                            // Este margen es para que la caja negra no toque los bordes de la tarjeta
+                            margin: const EdgeInsets.all(16.0),
                             padding: const EdgeInsets.symmetric(
                               horizontal: 16.0,
-                              vertical: 8.0,
+                              vertical: 12.0,
                             ),
                             decoration: BoxDecoration(
-                              // 2. AQUÍ ESTÁ EL TRUCO: Color negro con opacidad (0.5 es 50% transparente)
-                              color: Colors.black.withOpacity(0.5),
-                              // 3. Opcional: Bordes redondeados para que quede más bonito
+                              // Fondo negro semitransparente
+                              color: Colors.black.withOpacity(0.6),
                               borderRadius: BorderRadius.circular(20),
                             ),
-                            child: Text(
-                              recipeName,
-                              textAlign: TextAlign.center,
-                              style: const TextStyle(
-                                color: Colors.white,
-                                fontSize: 22,
-                                fontWeight: FontWeight.bold,
-                                // Mantener la sombra ayuda aún más a la lectura
-                                shadows: [
-                                  Shadow(
-                                    offset: Offset(1, 1),
-                                    blurRadius: 3.0,
-                                    color: Colors.black26,
+                            // mainAxisSize: MainAxisSize.min hace que la caja se ajuste al tamaño del texto
+                            child: Column(
+                              mainAxisSize: MainAxisSize.min,
+
+                              children: [
+                                // TEXTO 1: Nombre de la receta
+                                Text(
+                                  recipeName,
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    shadows: [
+                                      Shadow(
+                                        offset: Offset(1, 1),
+                                        blurRadius: 3.0,
+                                        color: Colors.black26,
+                                      ),
+                                    ],
                                   ),
-                                ],
-                              ),
+                                ),
+                                const SizedBox(
+                                  height: 4,
+                                ), // Espacio entre textos
+                                // TEXTO 2: Raciones (opcional)
+                                /*   Text(
+                                  recipeServings,
+                                  style: const TextStyle(
+                                    color:
+                                        Colors.white70, // Un poco más apagado
+                                    fontSize: 14,
+                                  ),
+                                ),*/
+                              ],
                             ),
                           ),
                         ),
