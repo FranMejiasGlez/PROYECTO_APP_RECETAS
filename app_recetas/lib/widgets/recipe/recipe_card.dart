@@ -33,10 +33,12 @@ class RecipeCard extends StatelessWidget {
                 topRight: Radius.circular(10),
               ),
               child: Container(
-                height: 80,
+                height: 200,
                 width: double.infinity,
                 color: Colors.lightBlue[300],
-                child: const Icon(Icons.restaurant, size: 40),
+                child: Image.network(
+                  "https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480_1_5x/img/recipe/ras/Assets/4ADF5D92-29D0-4EB7-8C8B-5C7DAA0DA74A/Derivates/E5E1004A-1FF0-448B-87AF-31393870B653.jpg",
+                ),
               ),
             ),
             Expanded(

@@ -35,30 +35,297 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
 
   // ignore: unused_field
   final List<String> _dificultad = ['fácil', 'Medio', 'Difícil'];
-
-  final List<Map<String, dynamic>> _todasLasRecetas = [
-    {'nombre': 'Paella Valenciana', 'categoria': 'Española', 'valoracion': 4.8},
-    {
-      'nombre': 'Tortilla de Patatas',
-      'categoria': 'Española',
-      'valoracion': 4.5,
-    },
-    {'nombre': 'Pizza Margarita', 'categoria': 'Italiana', 'valoracion': 4.7},
-    {'nombre': 'Sushi Roll', 'categoria': 'Japonesa', 'valoracion': 4.9},
-    {'nombre': 'Tacos al Pastor', 'categoria': 'Mexicana', 'valoracion': 4.6},
-    {'nombre': 'Lasaña Boloñesa', 'categoria': 'Italiana', 'valoracion': 4.4},
-    {'nombre': 'Ramen', 'categoria': 'Japonesa', 'valoracion': 4.8},
-    {'nombre': 'Gazpacho', 'categoria': 'Española', 'valoracion': 4.3},
+  final List<Recipe> _todasLasRecetasCompletas = [
+    Recipe(
+      nombre: 'Paella Valenciana',
+      categoria: 'Española',
+      descripcion: 'Deliciosa paella tradicional valenciana',
+      dificultad: 'Medio',
+      tiempo: '45 min',
+      servings: 4,
+      pasos: ['Paso 1', 'Paso 2', 'Paso 3'],
+      ingredientes: ['Arroz', 'Azafrán', 'Pollo'],
+    ),
+    Recipe(
+      nombre: 'Tortilla de Patatas',
+      categoria: 'Española',
+      descripcion: 'Tortilla española clásica',
+      dificultad: 'Fácil',
+      tiempo: '20 min',
+      servings: 3,
+      pasos: ['Paso 1', 'Paso 2'],
+      ingredientes: ['Patatas', 'Huevos', 'Cebolla'],
+    ),
+    Recipe(
+      nombre: 'Pizza Margarita',
+      categoria: 'Italiana',
+      descripcion: 'Pizza italiana auténtica',
+      dificultad: 'Medio',
+      tiempo: '30 min',
+      servings: 2,
+      pasos: ['Paso 1', 'Paso 2', 'Paso 3'],
+      ingredientes: ['Harina', 'Tomate', 'Mozzarella'],
+    ),
+    Recipe(
+      nombre: 'Sushi Roll',
+      categoria: 'Japonesa',
+      descripcion: 'Sushi roll casero',
+      dificultad: 'Difícil',
+      tiempo: '40 min',
+      servings: 2,
+      pasos: ['Paso 1', 'Paso 2', 'Paso 3', 'Paso 4'],
+      ingredientes: ['Arroz', 'Nori', 'Pepino', 'Aguacate'],
+    ),
+    Recipe(
+      nombre: 'Tacos al Pastor',
+      categoria: 'Mexicana',
+      descripcion: 'Tacos mexicanos tradicionales',
+      dificultad: 'Medio',
+      tiempo: '35 min',
+      servings: 4,
+      pasos: ['Paso 1', 'Paso 2', 'Paso 3'],
+      ingredientes: ['Carne', 'Tortillas', 'Cebolla'],
+    ),
+    Recipe(
+      nombre: 'Lasaña Boloñesa',
+      categoria: 'Italiana',
+      descripcion: 'Lasaña casera con salsa boloñesa',
+      dificultad: 'Medio',
+      tiempo: '50 min',
+      servings: 6,
+      pasos: ['Paso 1', 'Paso 2', 'Paso 3', 'Paso 4'],
+      ingredientes: ['Pasta', 'Carne molida', 'Tomate', 'Queso'],
+    ),
   ];
+  void _mostrarDetallesReceta(Recipe receta) {
+    showDialog(
+      context: context,
+      builder: (BuildContext context) {
+        return Dialog(
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: const EdgeInsets.all(20),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  if (receta.imageUrl != null && receta.imageUrl!.isNotEmpty)
+                    Center(
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(12),
+                        child: Container(
+                          width: 250,
+                          height: 200,
+                          color: const Color.fromARGB(255, 247, 79, 233),
+                        ),
+                      ),
+                    )
+                  else
+                    Container(
+                      width: 250,
+                      height: 200,
+                      child: Image.network(
+                        "https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480_1_5x/img/recipe/ras/Assets/4ADF5D92-29D0-4EB7-8C8B-5C7DAA0DA74A/Derivates/E5E1004A-1FF0-448B-87AF-31393870B653.jpg",
+                      ),
+                    ),
+                  const SizedBox(height: 16),
+                  Text(
+                    receta.nombre,
+                    style: const TextStyle(
+                      fontSize: 22,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const SizedBox(height: 8),
+                  if (receta.descripcion.isNotEmpty)
+                    Text(
+                      receta.descripcion,
+                      style: TextStyle(fontSize: 14, color: Colors.grey[600]),
+                    ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.grey[100],
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    child: Column(
+                      children: [
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _infoItem(
+                              icon: Icons.schedule,
+                              label: 'Tiempo',
+                              valor: receta.tiempo,
+                            ),
+                            _infoItem(
+                              icon: Icons.star,
+                              label: 'Dificultad',
+                              valor: receta.dificultad,
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            _infoItem(
+                              icon: Icons.people,
+                              label: 'Servings',
+                              valor: '${receta.servings}',
+                            ),
+                            _infoItem(
+                              icon: Icons.restaurant,
+                              label: 'Categoría',
+                              valor: receta.categoria,
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  ),
+                  if (receta.ingredientes.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Ingredientes',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: receta.ingredientes
+                          .map(
+                            (ingrediente) => Padding(
+                              padding: const EdgeInsets.symmetric(vertical: 4),
+                              child: Row(
+                                children: [
+                                  const Icon(
+                                    Icons.circle,
+                                    size: 6,
+                                    color: Colors.teal,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  Expanded(child: Text(ingrediente)),
+                                ],
+                              ),
+                            ),
+                          )
+                          .toList(),
+                    ),
+                  ],
+                  if (receta.pasos.isNotEmpty) ...[
+                    const SizedBox(height: 16),
+                    const Text(
+                      'Pasos',
+                      style: TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: List.generate(
+                        receta.pasos.length,
+                        (index) => Padding(
+                          padding: const EdgeInsets.symmetric(vertical: 4),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Container(
+                                width: 24,
+                                height: 24,
+                                decoration: BoxDecoration(
+                                  color: Colors.teal,
+                                  borderRadius: BorderRadius.circular(12),
+                                ),
+                                child: Center(
+                                  child: Text(
+                                    '${index + 1}',
+                                    style: const TextStyle(
+                                      color: Colors.white,
+                                      fontSize: 12,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(width: 8),
+                              Expanded(child: Text(receta.pasos[index])),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ),
+                  ],
+                  const SizedBox(height: 16),
+                  SizedBox(
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      onPressed: () => Navigator.pop(context),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: Colors.teal,
+                        padding: const EdgeInsets.symmetric(vertical: 12),
+                      ),
+                      child: const Text(
+                        'Cerrar',
+                        style: TextStyle(color: Colors.white),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
 
-  List<Map<String, dynamic>> get _recetasFiltradas {
-    return _todasLasRecetas.where((receta) {
-      final matchesSearch = receta['nombre'].toString().toLowerCase().contains(
+  Widget _infoItem({
+    required IconData icon,
+    required String label,
+    required String valor,
+  }) {
+    return Expanded(
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Icon(icon, size: 16, color: Colors.teal),
+              const SizedBox(width: 6),
+              Text(
+                label,
+                style: const TextStyle(fontSize: 12, color: Colors.grey),
+              ),
+            ],
+          ),
+          const SizedBox(height: 4),
+          Text(
+            valor,
+            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600),
+          ),
+        ],
+      ),
+    );
+  }
+
+  List<Recipe> get _recetasFiltradas {
+    return _todasLasRecetasCompletas.where((receta) {
+      final matchesSearch = receta.nombre.toLowerCase().contains(
         _searchQuery.toLowerCase(),
       );
       final matchesFilter =
           _filtroSeleccionado == 'Todos' ||
-          receta['categoria'] == _filtroSeleccionado;
+          receta.categoria == _filtroSeleccionado;
       return matchesSearch && matchesFilter;
     }).toList();
   }
@@ -305,10 +572,10 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
             itemBuilder: (context, index) {
               final receta = _recetasFiltradas[index];
               return RecipeCard(
-                nombre: receta['nombre'],
-                categoria: receta['categoria'],
-                valoracion: receta['valoracion'],
-                onTap: () => print('Receta: ${receta['nombre']}'),
+                nombre: receta.nombre,
+                categoria: receta.categoria,
+                valoracion: 4.5, // O añade valoracion al modelo Recipe
+                onTap: () => _mostrarDetallesReceta(receta),
               );
             },
           ),
@@ -326,30 +593,26 @@ class _PantallaBibliotecaState extends State<PantallaBiblioteca> {
             // --- CARRUSEL 1: MIS RECETAS ---
             RecipeCarousel(
               title: 'Mis Recetas',
-              // Muestra "Sin recetas" si la lista está vacía, pero permite hacer clic
               recipes: _recetasLocales != null && _recetasLocales!.isNotEmpty
                   ? _recetasLocales!.map((r) => r.nombre).toList()
-                  : ['Sin recetas'], // Este elemento también será clickeable
+                  : ['Sin recetas'],
               onRecipeTap: (index) {
-                // ¡SIN CONDICIONES! Navega siempre.
-                // Pasamos la lista actual (puede ser null, la otra pantalla ya sabe manejarlo)
-                Navigator.pushNamed(
-                  context,
-                  AppRoutes.misrecetas,
-                  arguments: _recetasLocales,
-                );
+                if (_recetasLocales != null && _recetasLocales!.isNotEmpty) {
+                  print("Click en mis recetas ");
+                  _mostrarDetallesReceta(_recetasLocales![index]);
+                }
               },
             ),
 
             // --- CARRUSEL 2: GUARDADOS ---
             RecipeCarousel(
               title: 'Guardados',
-              recipes: _todasLasRecetas
-                  .map((receta) => receta['nombre'].toString())
-                  .toList(),
+              recipes: _todasLasRecetasCompletas.map((r) => r.nombre).toList(),
               onRecipeTap: (index) {
-                // ¡SIN CONDICIONES! Navega directo a Guardados.
-                Navigator.pushNamed(context, AppRoutes.guardados);
+                print(
+                  "Click en receta " + _todasLasRecetasCompletas[index].nombre,
+                );
+                _mostrarDetallesReceta(_todasLasRecetasCompletas[index]);
               },
             ),
           ],

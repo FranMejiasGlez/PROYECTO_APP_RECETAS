@@ -125,7 +125,9 @@ class _PantallaGuardadosState extends State<PantallaGuardados> {
                         child: Container(
                           width: 250,
                           height: 200,
-                          color: Colors.lightBlue[300],
+                          child: Image.network(
+                            "https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480_1_5x/img/recipe/ras/Assets/4ADF5D92-29D0-4EB7-8C8B-5C7DAA0DA74A/Derivates/E5E1004A-1FF0-448B-87AF-31393870B653.jpg",
+                          ),
                         ),
                       ),
                     )
@@ -133,7 +135,9 @@ class _PantallaGuardadosState extends State<PantallaGuardados> {
                     Container(
                       width: 250,
                       height: 200,
-                      color: Colors.lightBlue[300],
+                      child: Image.network(
+                        "https://assets.tmecosys.com/image/upload/t_web_rdp_recipe_584x480_1_5x/img/recipe/ras/Assets/4ADF5D92-29D0-4EB7-8C8B-5C7DAA0DA74A/Derivates/E5E1004A-1FF0-448B-87AF-31393870B653.jpg",
+                      ),
                     ),
                   const SizedBox(height: 16),
                   Text(
@@ -342,8 +346,6 @@ class _PantallaGuardadosState extends State<PantallaGuardados> {
         // Si no se encuentra por nombre, no hacemos nada (solo se muestra la lista)
       }
     }
-    // CASO 2: Tu lógica antigua (si recibías algo más aquí)
-    // else if (args is LoQueSeaQueRecibiasAntes) { ... }
   }
 
   @override
