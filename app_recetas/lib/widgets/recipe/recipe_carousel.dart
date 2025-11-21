@@ -1,8 +1,5 @@
-import 'package:app_recetas/screens/pantalla_guardados.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart'; // Necesario para PointerDeviceKind
-import 'package:app_recetas/utils/app_theme.dart';
-import 'package:app_recetas/screens/pantalla_biblioteca.dart';
 
 class RecipeCarousel extends StatelessWidget {
   final String title;
@@ -40,9 +37,6 @@ class RecipeCarousel extends StatelessWidget {
               itemCount: recipes.length,
               itemBuilder: (context, index) {
                 final String recipeName = recipes[index];
-                // Nota: Aquí asigno lo mismo porque no tengo tu dato de raciones,
-                // cámbialo por tu variable real si la tienes.
-                // final String recipeServings = ;
 
                 return Padding(
                   padding: const EdgeInsets.symmetric(horizontal: 8.0),
@@ -101,15 +95,6 @@ class RecipeCarousel extends StatelessWidget {
                                 const SizedBox(
                                   height: 4,
                                 ), // Espacio entre textos
-                                // TEXTO 2: Raciones (opcional)
-                                /*   Text(
-                                  recipeServings,
-                                  style: const TextStyle(
-                                    color:
-                                        Colors.white70, // Un poco más apagado
-                                    fontSize: 14,
-                                  ),
-                                ),*/
                               ],
                             ),
                           ),
