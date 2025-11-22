@@ -22,32 +22,24 @@ import 'package:app_recetas/widgets/recipe/user_avatar.dart';
 // ✅ ZONA GLOBAL: DATOS INICIALES
 // ---------------------------------------------------------------------------
 
-// LISTA 1: IZQUIERDA (Tus seguidores)
-// Hemos cambiado a Carlos y Sofia a 'true' para simular que ya los seguías de antes.
 List<Map<String, dynamic>> listaIzquierdaSeguidores = [
   {"name": "Pablo", "img": "https://robohash.org/pablo?set=set5", "loSigo": false},
   {"name": "Maria", "img": "https://robohash.org/maria?set=set5", "loSigo": false},
-  // ¡OJO! Carlos ya lo seguimos al iniciar
   {"name": "Carlos", "img": "https://robohash.org/carlos?set=set5", "loSigo": true},
   {"name": "Lucia", "img": "https://robohash.org/lucia?set=set5", "loSigo": false},
   {"name": "Andy", "img": "https://robohash.org/andy?set=set5", "loSigo": false},
-  // ¡OJO! Sofia ya la seguimos al iniciar
   {"name": "Sofia", "img": "https://robohash.org/sofia?set=set5", "loSigo": true},
 ];
 
-// LISTA 2: DERECHA (Gente que tú sigues)
-// Incluye los Chefs por defecto Y TAMBIÉN a Carlos y Sofia para que coincida al arranque.
 List<Map<String, dynamic>> listaDerechaSeguidos = [
   {"name": "Chef Ramsay", "img": "https://robohash.org/ramsay?set=set5", "loSigo": true},
   {"name": "Jamie Oliver", "img": "https://robohash.org/jamie?set=set5", "loSigo": true},
-  // Añadimos aquí los que están en true en la izquierda para mantener la coherencia inicial
   {"name": "Carlos", "img": "https://robohash.org/carlos?set=set5", "loSigo": true},
   {"name": "Sofia", "img": "https://robohash.org/sofia?set=set5", "loSigo": true},
 ];
 
-// Contadores globales
 int numSeguidores = 6; 
-int numSeguidos = 3; 
+int numSeguidos = 0; 
 
 // ---------------------------------------------------------------------------
 
@@ -66,24 +58,40 @@ class _PantallaPerfilUserState extends State<PantallaPerfilUser> {
     numSeguidos = listaDerechaSeguidos.length;
   }
 
-  // LÓGICA DE SINCRONIZACIÓN (Igual que antes)
-  void _toggleSeguirDesdeIzquierda(int index) {
+  // LÓGICA 1: ACCIÓN DESDE LA IZQUIERDA (Solo permite Seguir)
+  void _seguirDesdeIzquierda(int index) {
     setState(() {
       var usuarioIzquierda = listaIzquierdaSeguidores[index];
-      bool yaLoSigo = usuarioIzquierda["loSigo"];
+      
+      // Si ya lo sigo, no hacemos nada (o podríamos mostrar un mensaje)
+      if (usuarioIzquierda["loSigo"] == true) return;
 
-      if (yaLoSigo) {
-        // Dejar de seguir
-        usuarioIzquierda["loSigo"] = false;
-        listaDerechaSeguidos.removeWhere((u) => u["name"] == usuarioIzquierda["name"]);
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Dejaste de seguir a ${usuarioIzquierda["name"]}"), backgroundColor: Colors.redAccent, duration: const Duration(milliseconds: 600)));
-      } else {
-        // Empezar a seguir
-        usuarioIzquierda["loSigo"] = true;
-        listaDerechaSeguidos.add({"name": usuarioIzquierda["name"], "img": usuarioIzquierda["img"], "loSigo": true});
-        ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("¡Ahora sigues a ${usuarioIzquierda["name"]}!"), backgroundColor: Colors.green, duration: const Duration(milliseconds: 600)));
-      }
+      // Empezar a seguir
+      usuarioIzquierda["loSigo"] = true;
+      listaDerechaSeguidos.add({"name": usuarioIzquierda["name"], "img": usuarioIzquierda["img"], "loSigo": true});
+      
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("¡Ahora sigues a ${usuarioIzquierda["name"]}!"), backgroundColor: Colors.green, duration: const Duration(milliseconds: 600)));
+      
       numSeguidos = listaDerechaSeguidos.length;
+    });
+  }
+
+  // LÓGICA 2: ACCIÓN DESDE LA DERECHA (Solo Dejar de Seguir)
+  void _dejarDeSeguirDesdeDerecha(int index) {
+    setState(() {
+      var usuarioABorrar = listaDerechaSeguidos[index];
+      
+      // Sincronizamos con la izquierda para reactivar el botón de seguir
+      var coincidenciaEnIzquierda = listaIzquierdaSeguidores.indexWhere((u) => u["name"] == usuarioABorrar["name"]);
+      if (coincidenciaEnIzquierda != -1) {
+        listaIzquierdaSeguidores[coincidenciaEnIzquierda]["loSigo"] = false;
+      }
+
+      // Borramos de la derecha
+      listaDerechaSeguidos.removeAt(index);
+      numSeguidos = listaDerechaSeguidos.length;
+
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text("Dejaste de seguir a ${usuarioABorrar["name"]}"), backgroundColor: Colors.redAccent, duration: const Duration(milliseconds: 600)));
     });
   }
 
@@ -92,14 +100,13 @@ class _PantallaPerfilUserState extends State<PantallaPerfilUser> {
     return Scaffold(
       body: Stack(
         children: [
-          // Fondo Degradado
           Container(decoration: BoxDecoration(gradient: AppTheme.appGradient)),
 
           SafeArea(
             child: Column(
               children: [
                 const SizedBox(height: 10),
-                // --- HEADER (Sin cambios) ---
+                // HEADER
                 Padding(
                   padding: const EdgeInsets.all(16.0),
                   child: Row(
@@ -148,11 +155,11 @@ class _PantallaPerfilUserState extends State<PantallaPerfilUser> {
 
                 const SizedBox(height: 40),
 
-                // --- ZONA DE LISTAS (IZQUIERDA vs DERECHA) ---
+                // ZONA DE LISTAS
                 Expanded(
                   child: Row(
                     children: [
-                      // 1. COLUMNA IZQUIERDA: TUS SEGUIDORES (Ahora con estilo de tarjeta)
+                      // 1. COLUMNA IZQUIERDA: SEGUIDORES (Botón Seguir o Estado Siguiendo)
                       Expanded(
                         child: Column(
                           children: [
@@ -164,12 +171,15 @@ class _PantallaPerfilUserState extends State<PantallaPerfilUser> {
                                 itemCount: listaIzquierdaSeguidores.length,
                                 itemBuilder: (context, index) {
                                   final user = listaIzquierdaSeguidores[index];
-                                  // Usamos el NUEVO widget UserCardIzquierdaStyle
+                                  // Sincronización visual
+                                  bool estaEnDerecha = listaDerechaSeguidos.any((u) => u['name'] == user['name']);
+                                  
                                   return UserCardIzquierdaStyle(
                                     name: user["name"],
                                     imageAsset: user["img"],
-                                    isFollowing: user["loSigo"], 
-                                    onFollowPressed: () => _toggleSeguirDesdeIzquierda(index),
+                                    isFollowing: estaEnDerecha, 
+                                    modoDerecha: false, // ESTAMOS EN LA IZQUIERDA
+                                    onPressed: () => _seguirDesdeIzquierda(index),
                                   );
                                 },
                               ),
@@ -178,10 +188,9 @@ class _PantallaPerfilUserState extends State<PantallaPerfilUser> {
                         ),
                       ),
 
-                      // Línea divisoria
                       Container(width: 1, color: Colors.black12),
 
-                      // 2. COLUMNA DERECHA: GENTE QUE SIGUES (Estilo tarjeta simple)
+                      // 2. COLUMNA DERECHA: SEGUIDOS (Botón Dejar de seguir)
                       Expanded(
                         child: Column(
                           children: [
@@ -193,17 +202,13 @@ class _PantallaPerfilUserState extends State<PantallaPerfilUser> {
                                 itemCount: listaDerechaSeguidos.length,
                                 itemBuilder: (context, index) {
                                   final user = listaDerechaSeguidos[index];
-                                  // Tarjeta simple derecha (relicada el estilo)
-                                  return Card(
-                                    color: Colors.white.withOpacity(0.6),
-                                    margin: const EdgeInsets.only(bottom: 10),
-                                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
-                                    child: ListTile(
-                                      contentPadding: const EdgeInsets.symmetric(horizontal: 10, vertical: 0),
-                                      leading: CircleAvatar(radius: 18, backgroundImage: NetworkImage(user['img'])),
-                                      title: Text(user['name'], style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold), overflow: TextOverflow.ellipsis),
-                                      trailing: const Icon(Icons.check_circle, color: Colors.green, size: 20),
-                                    ),
+                                  
+                                  return UserCardIzquierdaStyle(
+                                    name: user["name"],
+                                    imageAsset: user["img"],
+                                    isFollowing: true, 
+                                    modoDerecha: true, // ESTAMOS EN LA DERECHA
+                                    onPressed: () => _dejarDeSeguirDesdeDerecha(index),
                                   );
                                 },
                               ),
@@ -223,65 +228,95 @@ class _PantallaPerfilUserState extends State<PantallaPerfilUser> {
   }
 }
 
-// --- NUEVO WIDGET PARA LA IZQUIERDA ---
-// Adopta el estilo de "Card" semitransparente y usa ListTile
+// --- WIDGET TARJETA DE USUARIO INTELIGENTE ---
 class UserCardIzquierdaStyle extends StatelessWidget {
   final String name;
   final String imageAsset;
-  final bool isFollowing;
-  final VoidCallback onFollowPressed;
+  final bool isFollowing; // ¿Lo sigo?
+  final bool modoDerecha; // ¿Estoy en la lista derecha (para borrar) o izquierda (para añadir)?
+  final VoidCallback onPressed;
 
   const UserCardIzquierdaStyle({
     super.key,
     required this.name,
     required this.imageAsset,
     required this.isFollowing,
-    required this.onFollowPressed,
+    required this.modoDerecha,
+    required this.onPressed,
   });
 
   @override
   Widget build(BuildContext context) {
-    // Usamos la misma estructura de Card que en la derecha
+    
+    // CONFIGURACIÓN DEL BOTÓN SEGÚN COLUMNA
+    String textoBoton = "";
+    Color colorFondo = Colors.grey[200]!;
+    Color colorTexto = Colors.black;
+    IconData icono = Icons.add;
+    VoidCallback? accionBoton = onPressed;
+
+    if (modoDerecha) {
+      // --- MODO DERECHA: Siempre es "Dejar" (Rojo) ---
+      textoBoton = "Dejar de seguir";
+      colorFondo = const Color(0xFFFF6B6B);
+      colorTexto = Colors.white;
+      icono = Icons.remove;
+    } else {
+      // --- MODO IZQUIERDA: Depende del estado ---
+      if (isFollowing) {
+        // Ya lo sigo: Muestro estado "Siguiendo" (Verde, sin acción de borrar)
+        textoBoton = "Siguiendo";
+        colorFondo = const Color(0xFF1CC4A8).withOpacity(0.2); // Verde suave
+        colorTexto = const Color(0xFF0E6B5C); // Verde oscuro
+        icono = Icons.check;
+        accionBoton = null; // DESHABILITADO: No se puede borrar desde la izquierda
+      } else {
+        // No lo sigo: Botón "Seguir" (Gris/Amarillo)
+        textoBoton = "Seguir";
+        colorFondo = Colors.grey[200]!;
+        colorTexto = Colors.black;
+        icono = Icons.add;
+      }
+    }
+
     return Card(
-      // Color blanquecino semitransparente
       color: Colors.white.withOpacity(0.6),
       margin: const EdgeInsets.only(bottom: 10),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
       child: ListTile(
         contentPadding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
-        // Avatar a la izquierda
         leading: CircleAvatar(
           radius: 20,
           backgroundColor: Colors.grey[200],
           backgroundImage: NetworkImage(imageAsset),
         ),
-        // Nombre en el centro
         title: Text(
           name,
           style: const TextStyle(fontSize: 13, fontWeight: FontWeight.bold),
           overflow: TextOverflow.ellipsis,
         ),
-        // Botón a la derecha (trailing)
         trailing: SizedBox(
-          width: 110, // Ancho fijo para que el botón quepa bien
+          width: 110,
           height: 32,
           child: ElevatedButton(
-            onPressed: onFollowPressed,
+            onPressed: accionBoton, // Si es null, el botón se ve "desactivado" visualmente
             style: ElevatedButton.styleFrom(
-              backgroundColor: isFollowing ? const Color(0xFFFF6B6B) : Colors.grey[200],
-              foregroundColor: isFollowing ? Colors.white : Colors.black,
-              elevation: 0, // Sin sombra para que se vea plano sobre la tarjeta
+              backgroundColor: colorFondo,
+              disabledBackgroundColor: colorFondo, // Para que mantenga color si está desactivado
+              disabledForegroundColor: colorTexto,
+              foregroundColor: colorTexto,
+              elevation: 0,
               padding: const EdgeInsets.symmetric(horizontal: 8),
               shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
             ),
             child: Row(
               mainAxisAlignment: MainAxisAlignment.center,
               children: [
-                Icon(isFollowing ? Icons.remove : Icons.add, size: 14),
+                Icon(icono, size: 14),
                 const SizedBox(width: 4),
                 Flexible(
                   child: Text(
-                    isFollowing ? "Dejar de seguir" : "Seguir", // Texto más corto para que quepa
+                    textoBoton,
                     style: const TextStyle(fontSize: 11, fontWeight: FontWeight.w600),
                     overflow: TextOverflow.ellipsis,
                   ),
