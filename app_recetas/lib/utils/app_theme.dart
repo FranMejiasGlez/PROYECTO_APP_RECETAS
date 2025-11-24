@@ -9,7 +9,11 @@ class AppTheme {
     return const LinearGradient(
       begin: Alignment.topLeft,
       end: Alignment(0.8, 1),
-      colors: [tealGreen, primaryYellow, orange],
+      colors: [
+        Color.fromARGB(255, 255, 255, 255),
+        Color.fromARGB(255, 255, 255, 255),
+        Color.fromARGB(255, 255, 255, 255),
+      ],
     );
   }
 

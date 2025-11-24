@@ -17,10 +17,10 @@ class RecipeSearchBar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 300,
+      width: 500,
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: Color(0xFF4F5D75),
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
             BoxShadow(
@@ -34,11 +34,14 @@ class RecipeSearchBar extends StatelessWidget {
           controller: controller,
           onChanged: onChanged,
           decoration: InputDecoration(
-            hintText: 'Buscar recetas...',
+            hintText: 'Busca una receta o usuario...',
+            hintStyle: TextStyle(color: Colors.white),
             prefixIcon: const Icon(Icons.search),
+            prefixIconColor: Colors.white,
             suffixIcon: showClearButton
                 ? IconButton(icon: const Icon(Icons.clear), onPressed: onClear)
                 : null,
+            suffixIconColor: Colors.white,
             border: InputBorder.none,
             contentPadding: const EdgeInsets.symmetric(
               horizontal: 16,

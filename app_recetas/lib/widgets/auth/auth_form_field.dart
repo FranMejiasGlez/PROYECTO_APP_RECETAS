@@ -26,11 +26,11 @@ class AuthFormField extends StatelessWidget {
         ),
         SizedBox(height: 4 * scale),
         Container(
-          color: Colors.grey[300],
+          color: Color(0xFF4F5D75),
           child: TextField(
             controller: controller,
             obscureText: obscureText,
-            style: TextStyle(fontSize: 14 * scale),
+            style: TextStyle(fontSize: 14 * scale, color: Colors.white),
             decoration: InputDecoration(
               border: InputBorder.none,
               contentPadding: EdgeInsets.symmetric(

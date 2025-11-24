@@ -124,20 +124,23 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
                 );
               },
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFEC601),
+                backgroundColor: Color(0xFF25CCAD),
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 12,
                   vertical: 10,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(20),
                 ),
                 elevation: 5,
               ),
               child: const FittedBox(
                 fit: BoxFit.scaleDown,
-                child: Text('Biblioteca'),
+                child: Text(
+                  'Biblioteca',
+                  style: TextStyle(fontWeight: FontWeight.bold),
+                ),
               ),
             ),
           ),
@@ -280,11 +283,11 @@ class _PantallaRecetasState extends State<PantallaRecetas> {
           },
 
           style: ElevatedButton.styleFrom(
-            backgroundColor: const Color(0xFFFEC601),
+            backgroundColor: Colors.grey,
             foregroundColor: Colors.black,
             padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 12),
             shape: RoundedRectangleBorder(
-              borderRadius: BorderRadius.circular(12),
+              borderRadius: BorderRadius.circular(20),
             ),
             elevation: 5,
           ),

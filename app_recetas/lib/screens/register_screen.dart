@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import '../widgets/auth/auth_logo.dart';
 import '../widgets/auth/auth_form_field.dart';
-import '../widgets/auth/gradient_scaffold.dart';
+import '../utils/gradient_scaffold.dart';
 import '../utils/responsive_helper.dart';
 import '../config/routes.dart';
 
@@ -161,14 +161,14 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ElevatedButton(
               onPressed: () => _handleRegister(context),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFFEC601),
+                backgroundColor: Colors.grey,
                 foregroundColor: Colors.black,
                 padding: const EdgeInsets.symmetric(
                   horizontal: 20,
                   vertical: 12,
                 ),
                 shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
+                  borderRadius: BorderRadius.circular(0),
                 ),
                 elevation: 5,
               ),

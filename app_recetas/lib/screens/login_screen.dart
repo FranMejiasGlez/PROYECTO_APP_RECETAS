@@ -2,7 +2,7 @@ import 'package:app_recetas/widgets/auth/user_credentials.dart';
 import 'package:flutter/material.dart';
 import '../widgets/auth/auth_logo.dart';
 import '../widgets/auth/auth_form_field.dart';
-import '../widgets/auth/gradient_scaffold.dart';
+import '../utils/gradient_scaffold.dart';
 import '../utils/responsive_helper.dart';
 import '../config/routes.dart';
 import 'package:provider/provider.dart';
@@ -59,7 +59,6 @@ class _LoginPruebaState extends State<LoginScreen> {
   @override
   Widget build(BuildContext context) {
     final responsive = ResponsiveHelper(context);
-
     return GradientScaffold(
       child: Center(
         child: responsive.needsScroll
@@ -149,18 +148,18 @@ class _LoginPruebaState extends State<LoginScreen> {
               child: ElevatedButton(
                 onPressed: _handleLogin,
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFEC601),
+                  backgroundColor: Colors.grey,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 12,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(0),
                   ),
                   elevation: 5,
                 ),
-                child: const Text('Log in'),
+                child: const Text('Iniciar sesión'),
               ),
             ),
             const SizedBox(width: 12),
@@ -170,14 +169,14 @@ class _LoginPruebaState extends State<LoginScreen> {
                   Navigator.pushNamed(context, AppRoutes.register);
                 },
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: const Color(0xFFFEC601),
+                  backgroundColor: Colors.grey,
                   foregroundColor: Colors.black,
                   padding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 12,
                   ),
                   shape: RoundedRectangleBorder(
-                    borderRadius: BorderRadius.circular(12),
+                    borderRadius: BorderRadius.circular(0),
                   ),
                   elevation: 5,
                 ),

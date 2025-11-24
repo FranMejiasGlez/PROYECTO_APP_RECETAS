@@ -15,12 +15,13 @@ class RecipeFilterDropdown extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return SizedBox(
-      width: 300,
+      width: 110,
       child: Container(
         height: 45,
         decoration: BoxDecoration(
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
+          border: Border.all(color: Colors.grey),
           boxShadow: [
             BoxShadow(
               color: Colors.black.withOpacity(0.1),
@@ -32,14 +33,14 @@ class RecipeFilterDropdown extends StatelessWidget {
         padding: const EdgeInsets.symmetric(horizontal: 12),
         child: DropdownButton<String>(
           value: value,
-          isExpanded: true,
+          isExpanded: false,
           underline: const SizedBox(),
           icon: const Icon(Icons.arrow_drop_down, size: 20),
           style: const TextStyle(color: Colors.black, fontSize: 14),
           items: categories.map((String category) {
             return DropdownMenuItem<String>(
               value: category,
-              child: Text(category == 'Todos' ? 'Todas las categorías' : category),
+              child: Text(category == 'Todos' ? 'Filtrar' : category),
             );
           }).toList(),
           onChanged: onChanged,
