@@ -1,40 +1,32 @@
-// services/recetasService.js
-const { connect } = require('../db');
-const { ObjectId } = require('mongodb');
+// services/recetaService.js
+const Receta = require('../models/recetaModelo');
 
-async function getCollection() {
-  const db = await connect();
-  return db.collection('recetas'); // your collection name
-}
-
-exports.listar = async () => {
-  const col = await getCollection();
-  return col.find().limit(100).toArray(); // limit to 100 for safety
+// Obtener todas
+exports.obtenerTodasLasRecetas = async () => {
+  // Aquí podrías agregar lógica extra, filtros, etc.
+  return await Receta.find();
 };
 
-exports.buscarPorId = async (id) => {
-  const col = await getCollection();
-  return col.findOne({ _id: new ObjectId(id) });
+// Obtener por ID
+exports.obtenerRecetaPorId = async (id) => {
+  return await Receta.findById(id);
 };
 
-exports.crear = async (receta) => {
-  const db = getDb();
-  const col = db.collection('recetas');
-  return col.insertOne(receta);
+// Crear receta
+exports.crearReceta = async (recetaData) => {
+  const nuevaReceta = new Receta(recetaData);
+  return await nuevaReceta.save();
 };
 
-exports.actualizar = async (id, cambios) => {
-  const col = await getCollection();
-  const result = await col.findOneAndUpdate(
-    { _id: new ObjectId(id) },
-    { $set: cambios },
-    { returnDocument: 'after' }
-  );
-  return result.value; // null if not found
+// Actualizar receta
+exports.actualizarReceta = async (id, datosActualizados) => {
+  return await Receta.findByIdAndUpdate(id, datosActualizados, {
+    new: true, // Devolver el objeto actualizado
+    runValidators: true // Ejecutar validaciones del Schema
+  });
 };
 
-exports.eliminar = async (id) => {
-  const col = await getCollection();
-  const result = await col.findOneAndDelete({ _id: new ObjectId(id) });
-  return result.value; // null if not found
+// Eliminar receta
+exports.eliminarReceta = async (id) => {
+  return await Receta.findByIdAndDelete(id);
 };
