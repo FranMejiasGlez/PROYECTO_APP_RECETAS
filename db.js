@@ -1,27 +1,26 @@
-//MongoDB andyjan24_db_user IlN2A2EzlXppep0l
 
-//mongodb+srv://andyjan24_db_user:VPrkJ9hQxAwZt6mk@migaz.ekuaaaf.mongodb.net/?appName=Migaz
-const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const uri = "mongodb+srv://andyjan24_db_user:VPrkJ9hQxAwZt6mk@migaz.ekuaaaf.mongodb.net/?appName=Migaz";
+const mongoose = require('mongoose');
 
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
+const uri = "mongodb+srv://andyjan24_db_user:VPrkJ9hQxAwZt6mk@migaz.ekuaaaf.mongodb.net/migaz?appName=Migaz";
+
+const clientOptions = {
+  serverApi: { version: '1', strict: true, deprecationErrors: true },
+  family: 4 
+};
+
+const connect = async () => {
+  try {
+    console.log(" Conectando a MongoDB...");
+    
+    
+    await mongoose.connect(uri, clientOptions);
+
+    console.log(" Base de datos 'migaz' conectada con Mongoose");
+  } catch (error) {
+    console.error(" Error de conexión:", error.message);
+    throw error;
   }
-});
-
-let db;
-
-async function connect() {
-  if (!db) {
-    await client.connect();
-    //db = client.db('sample_mflix'); // your DB name
-    db = client.db('migaz'); // your DB name
-  }
-  return db;
-}
+};
 
 module.exports = { connect };

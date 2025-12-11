@@ -1,19 +1,38 @@
 const express = require("express");
-const { connect } = require("./db");  // conexión MongoDB
-require("dotenv").config();
-
+const { connect } = require("./db"); 
+require("dotenv").config(); 
+// --- IMPORTAR RUTAS ---
 const recetasRoutes = require("./routes/recetasRoutes");
+const userRoutes = require("./routes/usersRoutes"); 
 
 const app = express();
-app.use(express.json());
 
-// RUTA PRINCIPAL DE LA API
+// --- MIDDLEWARES ---
+app.use(express.json()); 
+
+// --- DEFINIR RUTAS (ENDPOINTS) ---
 app.use("/api/recetas", recetasRoutes);
+app.use("/api/users", userRoutes);
 
-// Conectar a Mongo
-connect()
-  .then(() => console.log("Mongo listo"))
-  .catch((err) => console.error("Error conectando:", err));
+app.get("/", (req, res) => {
+  res.send("API de Recetas funcionando correctamente ");
+});
 
+// --- CONFIGURACIÓN DEL PUERTO ---
 const PORT = process.env.PORT || 3000;
-app.listen(PORT, () => console.log("Servidor en puerto " + PORT));
+
+// --- INICIO DEL SERVIDOR ---
+console.log(" Iniciando conexión a MongoDB...");
+
+connect()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`SERVIDOR CORRIENDO EN: http://localhost:${PORT}`);
+      console.log("Base de datos conectada y operativa.");
+    });
+  })
+  .catch((err) => {
+    console.error("ERROR FATAL: No se pudo conectar a MongoDB.");
+    console.error("El servidor no se ha iniciado por seguridad.");
+    console.error("Detalle:", err.message);
+  });
