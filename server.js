@@ -5,6 +5,7 @@ require("dotenv").config();
 const app = express();
 
 const recetasRoutes = require("./routes/recetasRoutes");
+const comentariosRoutes = require("./routes/comentariosRoutes");
 
 
 
@@ -14,6 +15,8 @@ app.use(express.json());
 
 // RUTA PRINCIPAL DE LA API
 app.use("/api/recetas", recetasRoutes);
+app.use("/api/comentarios", comentariosRoutes);
+app.use('/img', express.static('img'));
 
 // Conectar a Mongo
 connect().then(() => {

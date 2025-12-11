@@ -26,7 +26,7 @@ exports.crear = async (req, res) => {
   try {
     // Aquí confiamos en que el Validator ya filtró los datos malos.
     // Simplemente llamamos al servicio.
-    const nuevaReceta = await recetaService.crearReceta(req.body);
+    const nuevaReceta = await recetaService.crearReceta(req.body, req.files);
     res.status(201).json(nuevaReceta);
 
   } catch (error) {
@@ -40,7 +40,7 @@ exports.crear = async (req, res) => {
 
 exports.actualizar = async (req, res) => {
   try {
-    const recetaActualizada = await recetaService.actualizarReceta(req.params.id, req.body);
+    const recetaActualizada = await recetaService.actualizarReceta(req.params.id, req.body, req.files);
     if (!recetaActualizada) {
       return res.status(404).json({ msg: 'Receta no encontrada' });
     }
@@ -58,6 +58,33 @@ exports.eliminar = async (req, res) => {
     }
     res.status(200).json({ msg: 'Receta eliminada correctamente' });
   } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+exports.valorar = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { puntuacion, user } = req.body;
+
+    // Validación básica
+    if (!puntuacion || puntuacion < 1 || puntuacion > 5) {
+      return res.status(400).json({ msg: 'La puntuación debe ser un número entre 1 y 5' });
+    }
+    if (!user) {
+      return res.status(400).json({ msg: 'Se requiere un usuario para votar' });
+    }
+
+    // Llamamos al servicio
+    const recetaActualizada = await recetaService.valorarReceta(id, user, puntuacion);
+
+    if (!recetaActualizada) {
+      return res.status(404).json({ msg: 'Receta no encontrada' });
+    }
+
+    res.status(200).json(recetaActualizada);
+  } catch (error) {
+    console.error(error);
     res.status(500).json({ error: error.message });
   }
 };
