@@ -82,12 +82,35 @@ exports.actualizarReceta = async (id, datos, archivos) => {
     return await receta.save();
 };
 
-// Eliminar receta
 exports.eliminarReceta = async (id) => {
-  // 1. Primero borramos todos los comentarios asociados a esa receta
+  // 1. Buscamos la receta ANTES de borrarla para saber qué imágenes tiene
+  const receta = await Receta.findById(id);
+  
+  if (!receta) return null;
+
+  // 2. Borrado de IMÁGENES (Limpieza del Servidor)
+  if (receta.imagenes && receta.imagenes.length > 0) {
+    receta.imagenes.forEach(rutaRelativa => {
+      // rutaRelativa viene como "img/ID_1.jpeg"
+      // Resolvemos la ruta absoluta para evitar errores
+      const rutaAbsoluta = path.join(__dirname, '../', rutaRelativa);
+
+      // Usamos unlink para borrar el archivo
+      fs.unlink(rutaAbsoluta, (err) => {
+        if (err) {
+          // Si el archivo no existe (ej: ya lo borraste manual), no pasa nada, solo logueamos
+          if (err.code !== 'ENOENT') console.error("Error borrando imagen:", err);
+        } else {
+          console.log(`Imagen eliminada: ${rutaRelativa}`);
+        }
+      });
+    });
+  }
+
+  // 3. Borrado de COMENTARIOS (Limpieza de la DB - Cascada)
   await Comentario.deleteMany({ receta: id });
 
-  // 2. Ahora que está limpia, borramos la receta
+  // 4. Finalmente, borramos la RECETA de la DB
   return await Receta.findByIdAndDelete(id);
 };
 
