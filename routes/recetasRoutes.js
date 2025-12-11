@@ -8,9 +8,6 @@ const { validatorCrearReceta } = require('../validators/recetaValidator');
 router.get('/', recetasController.obtenerTodos);
 router.get('/:id', recetasController.obtenerPorId);
 
-router.get('/mas-valoradas', recetasController.obtenerMasValoradas);
-router.get('/mas-nuevas', recetasController.obtenerMasNuevas);
-
 // inyectamos el middleware antes de llamar al controlador
 router.post('/', upload.array('imagenes', 5), validatorCrearReceta, recetasController.crear);
 router.post('/:id/valorar', recetasController.valorar);
