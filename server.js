@@ -6,6 +6,8 @@ const app = express();
 
 const recetasRoutes = require("./routes/recetasRoutes");
 const comentariosRoutes = require("./routes/comentariosRoutes");
+const usuariosRoutes = require("./routes/usuariosRoutes");
+const categoriasRoutes = require("./routes/categoriasRoutes");
 
 
 
@@ -16,6 +18,8 @@ app.use(express.json());
 // RUTA PRINCIPAL DE LA API
 app.use("/api/recetas", recetasRoutes);
 app.use("/api/comentarios", comentariosRoutes);
+app.use("/api/usuarios", usuariosRoutes);
+app.use("/api/categorias", categoriasRoutes);
 app.use('/img', express.static('img'));
 
 // Conectar a Mongo

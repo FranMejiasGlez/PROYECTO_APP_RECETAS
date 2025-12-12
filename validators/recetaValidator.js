@@ -1,12 +1,12 @@
 const { check, validationResult } = require('express-validator');
+const Categoria = require('../models/categoriaModelo');
 
 const validarResultados = (req, res, next) => {
   const errors = validationResult(req);
   if (!errors.isEmpty()) {
-    // Si hay errores, devolvemos un 400 y la lista de fallos
     return res.status(400).json({ errors: errors.array() });
   }
-  next(); // Si todo está bien, pasamos al Controlador
+  next();
 };
 
 const validatorCrearReceta = [
@@ -22,6 +22,19 @@ check('nombre').exists().notEmpty().withMessage('El nombre es obligatorio'),
     .exists()
     .isInt({ min: 1, max: 5 }).withMessage('La dificultad debe ser entre 1 y 5')
     .toInt(),
+
+  check('categoria')
+    .exists().withMessage('La categoría es obligatoria')
+    .trim()
+    .toLowerCase()
+    .custom(async (value) => {
+      // Buscamos en la colección de Categorias
+      const existe = await Categoria.findOne({ nombre: value });
+      if (!existe) {
+        throw new Error(`La categoría '${value}' no es válida. Debe crearla primero.`);
+      }
+      return true;
+    }),
 
   check('ingredientes')
     .isArray({ min: 1 }).withMessage('Añade al menos un ingrediente'),

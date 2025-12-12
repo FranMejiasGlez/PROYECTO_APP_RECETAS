@@ -88,3 +88,45 @@ exports.valorar = async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 };
+
+exports.obtenerMejorValoradas = async (req, res) => {
+  try {
+    // CONSTANTES PARA EL ALGORITMO BAYESIANO
+    // M: Número de votos "fantasma" que añadimos para suavizar
+    const M = 5; 
+    // C: La nota media global (asumimos 3.0 para ser neutrales)
+    const C = 3.0; 
+
+    const recetas = await require('../models/recetaModelo').aggregate([
+      {
+        $addFields: {
+          // Calculamos el "bayesianScore" usando la fórmula
+          // Score = ( (Promedio * Votos) + (C * M) ) / (Votos + M)
+          bayesianScore: {
+            $cond: {
+              if: { $eq: ["$cantidadVotos", 0] }, // Si tiene 0 votos
+              then: 0, // Score es 0
+              else: {
+                $divide: [
+                  { 
+                    $add: [
+                      { $multiply: ["$promedio", "$cantidadVotos"] }, // P * V
+                      { $multiply: [C, M] } // C * M
+                    ]
+                  },
+                  { $add: ["$cantidadVotos", M] } // V + M
+                ]
+              }
+            }
+          }
+        }
+      },
+      { $sort: { bayesianScore: -1 } }, // Ordenar de mayor a menor
+      { $limit: 10 } // TOP 10 (Para no cargar miles)
+    ]);
+
+    res.status(200).json(recetas);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
