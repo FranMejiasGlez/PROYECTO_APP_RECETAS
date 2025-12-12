@@ -1,19 +1,53 @@
 const mongoose = require("mongoose");
+const { Schema, model } = mongoose;
 
-const userSchema = new mongoose.Schema(
+const userSchema = new Schema(
   {
-    id: { type: String, required: true }, 
-    username: { type: String, required: true },
-    password:{type: String, required: true},
-    email: { type: String, required: true }, 
-    profileImage: { type: String, default: null },
-    bio: { type: String, default: null },
+    username: { 
+      type: String, 
+      required: true, 
+      unique: true 
+    },
+    email: { 
+      type: String, 
+      required: true, 
+      unique: true 
+    },
+    password: { 
+      type: String, 
+      required: true 
+    },
+    
+    // Nombres exactos según tu base de datos (snake_case)
+    profile_image: { 
+      type: String, 
+      default: "" 
+    },
+    bio: { 
+      type: String, 
+      default: "" 
+    },
+
+    // Arrays de referencias (IDs)
+    recetas_guardadas: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'Receta' }], // Relación con Recetas
+      default: []
+    },
+    siguiendo: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'User' }],   // Relación con otros Usuarios
+      default: []
+    },
+    seguidores: {
+      type: [{ type: Schema.Types.ObjectId, ref: 'User' }],   // Relación con otros Usuarios
+      default: []
+    }
   },
   {
-    collection: "Usuarios", 
-    timestamps: true,
-    autoIndex: false, 
+    // Opciones
+    timestamps: true,      // Crea createdAt y updatedAt automáticamente
+    collection: "usuarios", // Fuerza minúsculas para que no cree "Usuarios"
+    versionKey: false      // Quita el __v
   }
 );
 
-module.exports = mongoose.model("User", userSchema);
+module.exports = model("User", userSchema);
