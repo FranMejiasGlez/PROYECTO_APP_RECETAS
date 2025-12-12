@@ -1,38 +1,26 @@
 const express = require("express");
-const { connect } = require("./db"); 
-require("dotenv").config(); 
-// --- IMPORTAR RUTAS ---
-const recetasRoutes = require("./routes/recetasRoutes");
-const userRoutes = require("./routes/usersRoutes"); 
-
+const cors = require("cors");
+const { connect } = require("./db");  // conexión MongoDB
+require("dotenv").config();
 const app = express();
 
-// --- MIDDLEWARES ---
-app.use(express.json()); 
+const recetasRoutes = require("./routes/recetasRoutes");
+const comentariosRoutes = require("./routes/comentariosRoutes");
+
+
+
+// Habilitar CORS para todos
+app.use(cors());
+app.use(express.json());
 
 // --- DEFINIR RUTAS (ENDPOINTS) ---
 app.use("/api/recetas", recetasRoutes);
-app.use("/api/users", userRoutes);
+app.use("/api/comentarios", comentariosRoutes);
+app.use('/img', express.static('img'));
 
-app.get("/", (req, res) => {
-  res.send("API de Recetas funcionando correctamente ");
-});
-
-// --- CONFIGURACIÓN DEL PUERTO ---
-const PORT = process.env.PORT || 3000;
-
-// --- INICIO DEL SERVIDOR ---
-console.log(" Iniciando conexión a MongoDB...");
-
-connect()
-  .then(() => {
-    app.listen(PORT, () => {
-      console.log(`SERVIDOR CORRIENDO EN: http://localhost:${PORT}`);
-      console.log("Base de datos conectada y operativa.");
+// Conectar a Mongo
+connect().then(() => {
+    app.listen(3000, () => {
+        console.log('Servidor escuchando en el puerto 3000');
     });
-  })
-  .catch((err) => {
-    console.error("ERROR FATAL: No se pudo conectar a MongoDB.");
-    console.error("El servidor no se ha iniciado por seguridad.");
-    console.error("Detalle:", err.message);
-  });
+});

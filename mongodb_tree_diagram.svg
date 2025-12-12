@@ -1,0 +1,174 @@
+<svg viewBox="0 0 1650 900" xmlns="http://www.w3.org/2000/svg">
+  <!-- Estilos -->
+  <defs>
+    <style>
+      .collection-box { fill: #4A90E2; stroke: #2E5C8A; stroke-width: 2; }
+      .embedded-box { fill: #7ED321; stroke: #5FA119; stroke-width: 2; }
+      .reference-box { fill: #F5A623; stroke: #C77E0A; stroke-width: 2; }
+      .array-box { fill: #50E3C2; stroke: #2EAA8F; stroke-width: 2; }
+      .text-title { fill: white; font-family: Arial, sans-serif; font-size: 16px; font-weight: bold; }
+      .text-field { fill: #333; font-family: Arial, sans-serif; font-size: 13px; }
+      .text-label { fill: #666; font-family: Arial, sans-serif; font-size: 11px; font-style: italic; }
+      .line { stroke: #666; stroke-width: 2; fill: none; }
+      .line-embedded { stroke: #5FA119; stroke-width: 2; fill: none; }
+      .line-reference { stroke: #C77E0A; stroke-width: 2; stroke-dasharray: 5,5; fill: none; }
+    </style>
+  </defs>
+
+  <!-- Título -->
+  <text x="700" y="30" text-anchor="middle" style="font-size: 24px; font-weight: bold; fill: #333;">
+    Modelo de Árbol MongoDB - Sistema de Recetas (Actualizado)
+  </text>
+
+  <!-- Colección RECETAS (centro) -->
+  <rect x="500" y="80" width="320" height="300" rx="5" class="collection-box"/>
+  <text x="660" y="105" text-anchor="middle" class="text-title">RECETAS (Colección)</text>
+  
+  <text x="510" y="130" class="text-field">_id: ObjectId</text>
+  <text x="510" y="150" class="text-field">nombre: String</text>
+  <text x="510" y="170" class="text-field">dificultad: String</text>
+  <text x="510" y="190" class="text-field">tiempo_preparacion: Number</text>
+  <text x="510" y="210" class="text-field">servings: Number</text>
+  <text x="510" y="230" class="text-field">fecha: Date</text>
+  <text x="510" y="250" class="text-field">total_guardados: Number</text>
+  <text x="510" y="270" class="text-field">total_comentarios: Number</text>
+  
+  <text x="510" y="295" class="text-label">+ ingredientes[] (embedded)</text>
+  <text x="510" y="313" class="text-label">+ instrucciones[] (embedded)</text>
+  <text x="510" y="331" class="text-label">+ comentarios[] (embedded)</text>
+  <text x="510" y="349" class="text-label">+ creador {} (referencia)</text>
+  <text x="510" y="367" class="text-label">+ categoria {} (referencia)</text>
+
+  <!-- Ingredientes (embedded) -->
+  <rect x="50" y="420" width="220" height="120" rx="5" class="embedded-box"/>
+  <text x="160" y="445" text-anchor="middle" class="text-title">ingredientes[]</text>
+  <text x="60" y="470" class="text-field" style="fill: white;">• nombre: String</text>
+  <text x="60" y="490" class="text-field" style="fill: white;">• cantidad: String</text>
+  <text x="60" y="510" class="text-field" style="fill: white;">• unidad: String</text>
+  <text x="160" y="530" text-anchor="middle" class="text-label" style="fill: white;">Embedded</text>
+  
+  <!-- Línea RECETAS -> ingredientes -->
+  <path d="M 550 380 L 400 420 L 270 450" class="line-embedded"/>
+  <circle cx="270" cy="450" r="4" fill="#5FA119"/>
+
+  <!-- Instrucciones (embedded) -->
+  <rect x="310" y="420" width="240" height="120" rx="5" class="embedded-box"/>
+  <text x="430" y="445" text-anchor="middle" class="text-title">instrucciones[]</text>
+  <text x="320" y="470" class="text-field" style="fill: white;">• id: String/ObjectId</text>
+  <text x="320" y="490" class="text-field" style="fill: white;">• orden: Number</text>
+  <text x="320" y="510" class="text-field" style="fill: white;">• contenido: String</text>
+  <text x="430" y="530" text-anchor="middle" class="text-label" style="fill: white;">Embedded</text>
+  
+  <!-- Línea RECETAS -> instrucciones -->
+  <path d="M 600 380 L 550 400 L 430 420" class="line-embedded"/>
+  <circle cx="430" cy="420" r="4" fill="#5FA119"/>
+
+  <!-- Comentarios (embedded) -->
+  <rect x="590" y="420" width="240" height="140" rx="5" class="embedded-box"/>
+  <text x="710" y="445" text-anchor="middle" class="text-title">comentarios[]</text>
+  <text x="600" y="470" class="text-field" style="fill: white;">• _id: ObjectId</text>
+  <text x="600" y="490" class="text-field" style="fill: white;">• usuario_id: ObjectId</text>
+  <text x="600" y="510" class="text-field" style="fill: white;">• nombre_usuario: String</text>
+  <text x="600" y="530" class="text-field" style="fill: white;">• texto: String</text>
+  <text x="600" y="550" class="text-field" style="fill: white;">• fecha: Date</text>
+  
+  <!-- Línea RECETAS -> comentarios -->
+  <path d="M 710 380 L 710 420" class="line-embedded"/>
+  <circle cx="710" cy="420" r="4" fill="#5FA119"/>
+
+  <!-- Categoría (referencia) -->
+  <rect x="920" y="80" width="280" height="120" rx="5" class="reference-box"/>
+  <text x="1060" y="105" text-anchor="middle" class="text-title">CATEGORIA (Colección)</text>
+  <text x="930" y="130" class="text-field" style="fill: white;">_id: ObjectId</text>
+  <text x="930" y="150" class="text-field" style="fill: white;">nombre_categoria: String</text>
+  <text x="1060" y="180" text-anchor="middle" class="text-label" style="fill: white;">Referenciada desde recetas.categoria</text>
+  
+  <!-- Línea RECETAS -> CATEGORIA (referencia) -->
+  <path d="M 820 140 L 920 140" class="line-reference"/>
+  <text x="870" y="135" class="text-label">referencia</text>
+
+  <!-- Usuario (referencia) -->
+  <rect x="920" y="230" width="320" height="260" rx="5" class="reference-box"/>
+  <text x="1080" y="255" text-anchor="middle" class="text-title">USUARIO (Colección)</text>
+  <text x="930" y="280" class="text-field" style="fill: white;">_id: ObjectId</text>
+  <text x="930" y="300" class="text-field" style="fill: white;">nombre: String</text>
+  <text x="930" y="320" class="text-field" style="fill: white;">email: String</text>
+  <text x="930" y="340" class="text-field" style="fill: white;">contrasenia: String</text>
+  <text x="930" y="360" class="text-field" style="fill: white;">esAdmin: Boolean</text>
+  <text x="930" y="380" class="text-field" style="fill: white;">fecha: Date</text>
+  <text x="930" y="405" class="text-field" style="fill: white;">recetas_creadas[] (array)</text>
+  <text x="930" y="425" class="text-field" style="fill: white;">recetas_guardadas[] (array)</text>
+  <text x="930" y="445" class="text-field" style="fill: white;">siguiendo[] (array)</text>
+  <text x="930" y="465" class="text-field" style="fill: white;">seguidores[] (array)</text>
+  <text x="1080" y="485" text-anchor="middle" class="text-label" style="fill: white;">Referenciado desde recetas.creador</text>
+  
+  <!-- Línea RECETAS -> USUARIO (referencia) -->
+  <path d="M 820 280 L 870 280 L 870 320 L 920 320" class="line-reference"/>
+  <text x="840" y="275" class="text-label">referencia</text>
+
+  <!-- Recetas creadas (array en usuario) -->
+  <rect x="920" y="520" width="320" height="100" rx="5" class="array-box"/>
+  <text x="1080" y="545" text-anchor="middle" class="text-title">recetas_creadas[]</text>
+  <text x="930" y="570" class="text-field">• receta_id: ObjectId</text>
+  <text x="930" y="590" class="text-field">• fecha_creacion: Date</text>
+  <text x="1080" y="610" text-anchor="middle" class="text-label">Referencias a RECETAS creadas por el usuario</text>
+  
+  <!-- Línea USUARIO -> recetas_creadas -->
+  <path d="M 1080 490 L 1080 520" class="line"/>
+
+  <!-- Recetas guardadas (array en usuario) -->
+  <rect x="920" y="650" width="320" height="100" rx="5" class="array-box"/>
+  <text x="1080" y="675" text-anchor="middle" class="text-title">recetas_guardadas[]</text>
+  <text x="930" y="700" class="text-field">• receta_id: ObjectId</text>
+  <text x="930" y="720" class="text-field">• fecha_guardado: Date</text>
+  <text x="1080" y="740" text-anchor="middle" class="text-label">Referencias a RECETAS favoritas del usuario</text>
+  
+  <!-- Línea recetas_creadas -> recetas_guardadas -->
+  <path d="M 1080 620 L 1080 650" class="line"/>
+
+  <!-- Seguidores/Siguiendo -->
+  <rect x="1280" y="230" width="340" height="160" rx="5" class="array-box"/>
+  <text x="1450" y="255" text-anchor="middle" class="text-title">Relación Sigue (N:M)</text>
+  <text x="1290" y="285" class="text-field">siguiendo[] en USUARIO:</text>
+  <text x="1300" y="305" class="text-field">• usuario_id: ObjectId</text>
+  <text x="1300" y="325" class="text-field">• fecha_seguimiento: Date</text>
+  <text x="1290" y="350" class="text-field">seguidores[] en USUARIO:</text>
+  <text x="1300" y="370" class="text-field">• usuario_id: ObjectId</text>
+  <text x="1450" y="385" text-anchor="middle" class="text-label">Almacenado como arrays bidireccionales</text>
+
+  <!-- Línea USUARIO -> Sigue -->
+  <path d="M 1240 350 L 1280 350" class="line-reference"/>
+  <text x="1245" y="345" class="text-label">arrays</text>
+
+  <!-- Leyenda -->
+  <g transform="translate(50, 610)">
+    <text x="0" y="0" style="font-size: 18px; font-weight: bold; fill: #333;">Leyenda:</text>
+    
+    <rect x="0" y="15" width="30" height="20" rx="3" class="collection-box"/>
+    <text x="40" y="30" class="text-field">Colección principal</text>
+    
+    <rect x="200" y="15" width="30" height="20" rx="3" class="embedded-box"/>
+    <text x="240" y="30" class="text-field">Documentos embebidos</text>
+    
+    <rect x="420" y="15" width="30" height="20" rx="3" class="reference-box"/>
+    <text x="460" y="30" class="text-field">Referencias (lookup)</text>
+    
+    <rect x="640" y="15" width="30" height="20" rx="3" class="array-box"/>
+    <text x="680" y="30" class="text-field">Arrays de referencias</text>
+    
+    <line x1="0" y1="55" x2="40" y2="55" class="line-embedded"/>
+    <text x="50" y="60" class="text-field">Relación embedded</text>
+    
+    <line x1="200" y1="55" x2="240" y2="55" class="line-reference"/>
+    <text x="250" y="60" class="text-field">Relación por referencia</text>
+  </g>
+
+  <!-- Notas adicionales -->
+  <g transform="translate(50, 780)">
+    <text x="0" y="0" style="font-size: 14px; font-weight: bold; fill: #333;">Decisiones clave del diseño:</text>
+    <text x="0" y="20" style="font-size: 12px; fill: #666;">• Usuario tiene DOS arrays separados: recetas_creadas[] (autoría) y recetas_guardadas[] (favoritos)</text>
+    <text x="0" y="38" style="font-size: 12px; fill: #666;">• Instrucciones embebidas en la receta (no necesitan colección separada)</text>
+    <text x="0" y="56" style="font-size: 12px; fill: #666;">• Relación "sigue" implementada con arrays bidireccionales en usuarios para consultas rápidas</text>
+    <text x="0" y="74" style="font-size: 12px; fill: #666;">• Comentarios embebidos con referencia a usuario (usuario_id) para poder actualizar datos si cambia el nombre</text>
+  </g>
+</svg>
