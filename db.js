@@ -1,27 +1,21 @@
+const mongoose = require('mongoose');
 //MongoDB andyjan24_db_user IlN2A2EzlXppep0l
 
-//mongodb+srv://andyjan24_db_user:VPrkJ9hQxAwZt6mk@migaz.ekuaaaf.mongodb.net/?appName=Migaz
-const { MongoClient, ServerApiVersion } = require('mongodb');
 
-const uri = "mongodb+srv://andyjan24_db_user:VPrkJ9hQxAwZt6mk@migaz.ekuaaaf.mongodb.net/?appName=Migaz";
-
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
-});
-
-let db;
+const uri = "mongodb+srv://andyjan24_db_user:VPrkJ9hQxAwZt6mk@migaz.ekuaaaf.mongodb.net/migaz?appName=Migaz";
 
 async function connect() {
-  if (!db) {
-    await client.connect();
-    //db = client.db('sample_mflix'); // your DB name
-    db = client.db('migaz'); // your DB name
+  try {
+    // Intentamos conectar con las opciones predeterminadas de Mongoose
+    await mongoose.connect(uri);
+    
+    console.log("¡MongoDB conectado exitosamente vía Mongoose!");
+    
+  } catch (err) {
+    console.error("Error de conexión a MongoDB:", err);
+    // Si falla la conexión crítica, cerramos el proceso para evitar que la app corra sin BD
+    process.exit(1); 
   }
-  return db;
 }
 
 module.exports = { connect };

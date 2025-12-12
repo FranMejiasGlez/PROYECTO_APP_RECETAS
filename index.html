@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gestor de Recetas - Migaz</title>
+    <link href="https://fonts.googleapis.com/css2?family=Segoe+UI:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* --- ESTILOS GENERALES --- */
+        body { font-family: 'Segoe UI', sans-serif; background-color: #f4f6f9; padding: 20px; color: #333; }
+        h1 { text-align: center; color: #2c3e50; margin-bottom: 30px; }
+
+        /* Botones */
+        .btn { padding: 8px 15px; cursor: pointer; border: none; border-radius: 6px; font-weight: 600; transition: 0.2s; font-size: 0.9em; text-decoration: none; display: inline-block;}
+        .btn:hover { opacity: 0.9; transform: scale(1.02); }
+        .btn-primary { background-color: #3498db; color: white; }
+        .btn-success { background-color: #2ecc71; color: white; }
+        .btn-danger { background-color: #e74c3c; color: white; }
+        .btn-warning { background-color: #f1c40f; color: #333; }
+        .btn-info { background-color: #17a2b8; color: white; } 
+        .btn-secondary { background-color: #95a5a6; color: white; }
+        .btn-outline { background: transparent; border: 2px dashed #bdc3c7; color: #7f8c8d; width: 100%; margin-top: 5px; }
+        .btn-sm-danger { background-color: #fab1a0; color: #c0392b; padding: 2px 8px; border-radius: 4px; font-size: 0.8em; margin-left: auto; }
+
+        /* Grid */
+        #recetas-container {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(350px, 1fr)); gap: 25px; margin-top: 20px;
+        }
+
+        /* Tarjetas */
+        .card { background: white; border-radius: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); overflow: hidden; display: flex; flex-direction: column; transition: transform 0.2s; }
+        .card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        
+        /* Imagen de Receta */
+        .card-img-top {
+            width: 100%;
+            height: 200px;
+            object-fit: cover;
+            background-color: #eee;
+        }
+        .no-img {
+            height: 150px;
+            display: flex; align-items: center; justify-content: center;
+            background-color: #f0f2f5; color: #aaa; font-weight: bold;
+        }
+
+        .card-body { padding: 20px; }
+        .card h3 { margin-top: 0; color: #2c3e50; font-size: 1.4em; margin-bottom: 10px; }
+        .tag { background: #ecf0f1; padding: 4px 10px; border-radius: 15px; font-size: 0.85em; color: #7f8c8d; margin-right: 5px; font-weight: 600; }
+        
+        /* Sección de Valoración */
+        .rating-section { margin: 15px 0; padding: 10px; background: #fdfefe; border: 1px solid #eee; border-radius: 8px; text-align: center; }
+        .stars-display { color: #f1c40f; font-size: 1.2em; cursor: pointer; letter-spacing: 5px; }
+        .rating-text { font-size: 0.85em; color: #7f8c8d; margin-top: 5px; display: block; }
+
+        .card-actions { margin-top: 15px; display: flex; flex-wrap: wrap; gap: 8px; padding-top: 15px; border-top: 1px solid #eee; }
+
+        /* Detalles (Ingredientes/Pasos) */
+        .details-section { background-color: #fff; border-top: 1px dashed #eee; padding: 0 20px; max-height: 0; overflow: hidden; transition: max-height 0.4s ease-out; }
+        .details-section.open { max-height: 1000px; padding-bottom: 20px; overflow-y: auto; }
+        .details-grid { display: flex; flex-direction: column; gap: 15px; margin-top: 15px; }
+        .details-box h5 { margin: 0 0 10px 0; color: #3498db; border-bottom: 2px solid #f0f2f5; padding-bottom: 5px; }
+        .details-box ul, .details-box ol { margin: 0; padding-left: 20px; font-size: 0.9em; color: #555; }
+        .details-box li { margin-bottom: 5px; }
+
+        /* Comentarios */
+        .comments-section { background-color: #f8f9fa; border-top: 1px solid #eee; padding: 0; max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+        .comments-section.open { max-height: 400px; overflow-y: auto; padding: 15px; }
+        .comment-item { background: white; padding: 10px; border-radius: 6px; border: 1px solid #e9ecef; margin-bottom: 10px; font-size: 0.9em; }
+        .comment-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; }
+        .comment-user { font-weight: bold; color: #34495e; font-size: 0.9em; }
+        .delete-x { cursor: pointer; color: #e74c3c; font-weight: bold; }
+        .comment-form { display: flex; gap: 5px; margin-top: 10px; }
+        .comment-input { flex-grow: 1; padding: 8px; border: 1px solid #ced4da; border-radius: 4px; font-size: 0.9em; }
+
+        /* Modal */
+        .modal { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.5); justify-content: center; align-items: center; z-index: 1000; }
+        .modal-content { background-color: white; padding: 30px; border-radius: 12px; width: 90%; max-width: 600px; max-height: 90vh; overflow-y: auto; box-shadow: 0 10px 25px rgba(0,0,0,0.2); }
+        .form-group { margin-bottom: 15px; }
+        .form-group label { display: block; margin-bottom: 5px; font-weight: bold; font-size: 0.9rem; }
+        .form-control { width: 100%; padding: 10px; border: 1px solid #ddd; border-radius: 6px; box-sizing: border-box; }
+        .dynamic-row { display: flex; align-items: center; gap: 5px; margin-bottom: 5px; }
+        .dynamic-row input { flex-grow: 1; padding: 8px; border: 1px solid #ccc; border-radius: 5px; }
+    </style>
+</head>
+<body>
+
+    <h1>🌮 Gestor de Recetas - Migaz</h1>
+
+    <div style="text-align: center; margin-bottom: 20px;">
+        <p>Usuario actual: <strong>andy</strong></p>
+        <button class="btn btn-success" onclick="abrirModal()">+ Crear Nueva Receta</button>
+    </div>
+
+    <div id="recetas-container"></div>
+
+    <div id="modal-receta" class="modal">
+        <div class="modal-content">
+            <h2 id="modal-titulo" style="margin-top:0;">Receta</h2>
+            <form id="form-receta" enctype="multipart/form-data">
+                <input type="hidden" id="receta-id">
+
+                <div class="form-group">
+                    <label>Nombre del plato</label>
+                    <input type="text" id="nombre" class="form-control" required placeholder="Ej: Paella Valenciana">
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Categoría</label>
+                        <input type="text" id="categoria" class="form-control" required placeholder="Ej: Española">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Tiempo</label>
+                        <input type="text" id="tiempo" class="form-control" required placeholder="Ej: 45 min">
+                    </div>
+                </div>
+
+                <div style="display: flex; gap: 10px;">
+                    <div class="form-group" style="flex: 1;">
+                        <label>Comensales</label>
+                        <input type="number" id="comensales" class="form-control" required min="1">
+                    </div>
+                    <div class="form-group" style="flex: 1;">
+                        <label>Dificultad</label>
+                        <select id="dificultad" class="form-control">
+                            <option value="1">1 - Muy Fácil</option>
+                            <option value="2">2 - Fácil</option>
+                            <option value="3">3 - Media</option>
+                            <option value="4">4 - Difícil</option>
+                            <option value="5">5 - Experto</option>
+                        </select>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label>Video Youtube (Opcional)</label>
+                    <input type="text" id="youtube" class="form-control" placeholder="Ej: https://youtube.com/watch?v=...">
+                </div>
+
+                <div class="form-group">
+                    <label>Fotos (Opcional - Múltiples)</label>
+                    <input type="file" id="input-fotos" class="form-control" multiple accept="image/*">
+                    <small style="color:#777">Si editas, las nuevas fotos se añadirán a las existentes.</small>
+                </div>
+
+                <div class="form-group">
+                    <label>Ingredientes</label>
+                    <div id="lista-ingredientes"></div>
+                    <button type="button" class="btn btn-outline" onclick="agregarCampo('lista-ingredientes')">+ Añadir Ingrediente</button>
+                </div>
+
+                <div class="form-group">
+                    <label>Pasos</label>
+                    <div id="lista-instrucciones"></div>
+                    <button type="button" class="btn btn-outline" onclick="agregarCampo('lista-instrucciones')">+ Añadir Paso</button>
+                </div>
+
+                <div style="text-align: right; margin-top: 20px; border-top: 1px solid #eee; padding-top: 15px;">
+                    <button type="button" class="btn btn-secondary" onclick="cerrarModal()">Cancelar</button>
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:3000/api';
+        const BASE_URL = 'http://localhost:3000'; // Para las imágenes
+        const CURRENT_USER = 'andy';
+        let recetasCache = [];
+
+        document.addEventListener('DOMContentLoaded', fetchRecetas);
+
+        async function fetchRecetas() {
+            try {
+                const res = await fetch(`${API_URL}/recetas`);
+                const data = await res.json();
+                recetasCache = data;
+                renderizarRecetas(data);
+            } catch (error) {
+                console.error(error);
+                alert('No se pudo conectar al servidor');
+            }
+        }
+
+        function renderizarRecetas(recetas) {
+            const container = document.getElementById('recetas-container');
+            container.innerHTML = '';
+
+            if (!recetas || recetas.length === 0) {
+                container.innerHTML = '<p style="text-align:center; width:100%;">No hay recetas.</p>';
+                return;
+            }
+
+            recetas.forEach(receta => {
+                const card = document.createElement('div');
+                card.className = 'card';
+                
+                // 1. GESTIÓN DE IMAGEN
+                let imagenHTML = `<div class="no-img">Sin Foto 📷</div>`;
+                if (receta.imagenes && receta.imagenes.length > 0) {
+                    // Usamos la primera imagen. Mongoose guarda "img/nombre.jpg"
+                    // Así que concatenamos con BASE_URL
+                    imagenHTML = `<img src="${BASE_URL}/${receta.imagenes[0]}" class="card-img-top" alt="${receta.nombre}">`;
+                }
+
+                // 2. GESTIÓN DE YOUTUBE
+                let youtubeBtn = '';
+                if (receta.youtube) {
+                    youtubeBtn = `<a href="${receta.youtube}" target="_blank" class="btn btn-danger">▶ Video</a>`;
+                }
+
+                const ingredientesHTML = receta.ingredientes.map(ing => `<li>${ing}</li>`).join('');
+                const instruccionesHTML = receta.instrucciones.map(paso => `<li>${paso}</li>`).join('');
+                const estrellasHTML = generarEstrellasInteractivas(receta.promedio, receta._id);
+                
+                card.innerHTML = `
+                    ${imagenHTML}
+                    <div class="card-body">
+                        <h3>${receta.nombre}</h3>
+                        <p><span class="tag">${receta.categoria}</span> <span class="tag">⏱ ${receta.tiempo}</span></p>
+                        <p><strong>Dificultad:</strong> ${'⭐'.repeat(receta.dificultad)}</p>
+                        
+                        <div class="rating-section">
+                            <div class="stars-display">${estrellasHTML}</div>
+                            <span class="rating-text">${receta.promedio} / 5 (${receta.cantidadVotos} votos)</span>
+                        </div>
+
+                        <div class="card-actions">
+                            <button class="btn btn-warning" onclick="cargarEdicion('${receta._id}')">✏️</button>
+                            <button class="btn btn-danger" onclick="eliminarReceta('${receta._id}')">🗑️</button>
+                            <button class="btn btn-info" onclick="toggleDetails('${receta._id}')">📜 Receta</button>
+                            <button class="btn btn-secondary" onclick="toggleComentarios('${receta._id}')">💬 Opiniones</button>
+                            ${youtubeBtn}
+                        </div>
+                    </div>
+
+                    <div id="details-${receta._id}" class="details-section">
+                        <div class="details-grid">
+                            <div class="details-box"><h5>🥕 Ingredientes</h5><ul>${ingredientesHTML}</ul></div>
+                            <div class="details-box"><h5>👨‍🍳 Pasos</h5><ol>${instruccionesHTML}</ol></div>
+                        </div>
+                    </div>
+
+                    <div id="comentarios-${receta._id}" class="comments-section">
+                        <div style="text-align:center; padding:10px;">Cargando...</div>
+                    </div>
+                `;
+                container.appendChild(card);
+            });
+        }
+
+        // --- MANEJO DEL FORMULARIO CON FORMDATA (IMPORTANTE) ---
+
+        const modal = document.getElementById('modal-receta');
+        const form = document.getElementById('form-receta');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            // 1. Recolectamos los arrays manualmente
+            const ingInputs = [...document.querySelectorAll('#lista-ingredientes input')].map(i => i.value).filter(v => v.trim());
+            const instInputs = [...document.querySelectorAll('#lista-instrucciones input')].map(i => i.value).filter(v => v.trim());
+
+            if(ingInputs.length === 0 || instInputs.length === 0) {
+                return alert("Añade al menos un ingrediente y un paso.");
+            }
+
+            // 2. Creamos el FormData
+            const formData = new FormData();
+            formData.append('nombre', document.getElementById('nombre').value);
+            formData.append('categoria', document.getElementById('categoria').value);
+            formData.append('comensales', document.getElementById('comensales').value);
+            formData.append('dificultad', document.getElementById('dificultad').value);
+            formData.append('tiempo', document.getElementById('tiempo').value);
+            formData.append('user', CURRENT_USER);
+
+            // Opcional: Youtube
+            const yt = document.getElementById('youtube').value;
+            if(yt) formData.append('youtube', yt);
+
+            // Arrays: Se añaden uno a uno con el mismo nombre 'clave[]' o 'clave'
+            // Express-validator y multer suelen leerlo mejor si enviamos varias veces la misma clave
+            ingInputs.forEach(val => formData.append('ingredientes', val));
+            instInputs.forEach(val => formData.append('instrucciones', val));
+
+            // Archivos: Recorremos el input file
+            const fileInput = document.getElementById('input-fotos');
+            for (let i = 0; i < fileInput.files.length; i++) {
+                formData.append('imagenes', fileInput.files[i]);
+            }
+
+            const id = document.getElementById('receta-id').value;
+            const url = id ? `${API_URL}/recetas/${id}` : `${API_URL}/recetas`;
+            const method = id ? 'PUT' : 'POST';
+
+            try {
+                // NOTA: Al usar FormData, NO añadimos Content-Type header manual
+                const res = await fetch(url, {
+                    method: method,
+                    body: formData
+                });
+
+                if (res.ok) {
+                    cerrarModal();
+                    fetchRecetas();
+                } else {
+                    const err = await res.json();
+                    if(err.errors) alert('Errores:\n' + err.errors.map(e=>e.msg).join('\n'));
+                    else alert('Error: ' + (err.msg || 'Desconocido'));
+                }
+            } catch(e) { console.error(e); alert('Error de conexión'); }
+        });
+
+
+        // --- FUNCIONES DE SOPORTE (IGUAL QUE ANTES) ---
+
+        function toggleDetails(id) {
+            const sec = document.getElementById(`details-${id}`);
+            document.getElementById(`comentarios-${id}`).classList.remove('open');
+            sec.classList.toggle('open');
+        }
+
+        function toggleComentarios(id) {
+            const sec = document.getElementById(`comentarios-${id}`);
+            document.getElementById(`details-${id}`).classList.remove('open');
+            if(!sec.classList.contains('open')) { sec.classList.add('open'); cargarComentarios(id); }
+            else sec.classList.remove('open');
+        }
+
+        function generarEstrellasInteractivas(promedio, recetaId) {
+            let html = '';
+            for (let i = 1; i <= 5; i++) {
+                const isFilled = i <= Math.round(promedio) ? '★' : '☆';
+                html += `<span onclick="votarReceta('${recetaId}', ${i})" title="Votar ${i}">${isFilled}</span>`;
+            }
+            return html;
+        }
+
+        async function votarReceta(id, puntuacion) {
+            try { await fetch(`${API_URL}/recetas/${id}/valorar`, {
+                method: 'POST', headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ puntuacion, user: CURRENT_USER })
+            }); fetchRecetas(); } catch(e){ console.error(e); }
+        }
+
+        async function cargarComentarios(recetaId) {
+            const container = document.getElementById(`comentarios-${recetaId}`);
+            try {
+                const res = await fetch(`${API_URL}/comentarios/receta/${recetaId}`);
+                const comentarios = await res.json();
+                let html = '<h4 style="margin-top:0;">Opiniones</h4>';
+                if(comentarios.length===0) html+='<p style="color:#777">Sin opiniones.</p>';
+                else comentarios.forEach(c => {
+                    const del = c.usuario===CURRENT_USER ? `<span class="delete-x" onclick="eliminarComentario('${c._id}','${recetaId}')">✕</span>` : '';
+                    html+=`<div class="comment-item"><div class="comment-header"><span>👤 ${c.usuario}</span>${del}</div><div>${c.contenido}</div></div>`;
+                });
+                html+=`<div class="comment-form"><input id="in-com-${recetaId}" class="comment-input"><button class="btn btn-primary" onclick="pubCom('${recetaId}')">Enviar</button></div>`;
+                container.innerHTML = html;
+            } catch(e){ container.innerHTML='<p>Error</p>'; }
+        }
+
+        async function pubCom(recetaId) {
+            const val = document.getElementById(`in-com-${recetaId}`).value.trim();
+            if(!val) return;
+            await fetch(`${API_URL}/comentarios`, { method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify({usuario:CURRENT_USER, receta:recetaId, contenido:val}) });
+            cargarComentarios(recetaId);
+        }
+
+        async function eliminarComentario(cid, rid) {
+            if(confirm('¿Borrar?')) { await fetch(`${API_URL}/comentarios/${cid}`, {method:'DELETE'}); cargarComentarios(rid); }
+        }
+
+        function abrirModal() {
+            form.reset();
+            document.getElementById('receta-id').value = '';
+            document.getElementById('modal-titulo').innerText = 'Nueva Receta';
+            document.getElementById('lista-ingredientes').innerHTML='';
+            document.getElementById('lista-instrucciones').innerHTML='';
+            // Limpiar input file manualmente
+            document.getElementById('input-fotos').value = "";
+            agregarCampo('lista-ingredientes'); agregarCampo('lista-instrucciones');
+            modal.style.display = 'flex';
+        }
+        function cerrarModal(){ modal.style.display='none'; }
+        window.onclick=(e)=>{if(e.target==modal)cerrarModal();}
+
+        function agregarCampo(id, val=''){
+            const d=document.createElement('div'); d.className='dynamic-row';
+            d.innerHTML=`<input type="text" value="${val}" required><button type="button" class="btn btn-sm-danger" onclick="this.parentElement.remove()">✕</button>`;
+            document.getElementById(id).appendChild(d);
+        }
+
+        window.cargarEdicion = (id) => {
+            const r = recetasCache.find(x => x._id === id);
+            if(!r) return;
+            document.getElementById('receta-id').value = r._id;
+            document.getElementById('nombre').value = r.nombre;
+            document.getElementById('categoria').value = r.categoria;
+            document.getElementById('comensales').value = r.comensales;
+            document.getElementById('dificultad').value = r.dificultad;
+            document.getElementById('tiempo').value = r.tiempo;
+            document.getElementById('youtube').value = r.youtube || '';
+            
+            // Nota: No podemos pre-llenar el input file por seguridad del navegador
+            
+            const lIng=document.getElementById('lista-ingredientes'); lIng.innerHTML='';
+            const lInst=document.getElementById('lista-instrucciones'); lInst.innerHTML='';
+            r.ingredientes.forEach(x=>agregarCampo('lista-ingredientes',x));
+            r.instrucciones.forEach(x=>agregarCampo('lista-instrucciones',x));
+            
+            document.getElementById('modal-titulo').innerText = 'Editar Receta';
+            modal.style.display = 'flex';
+        }
+
+        window.eliminarReceta = async (id) => {
+            if(confirm('¿Borrar receta?')) { await fetch(`${API_URL}/recetas/${id}`, {method:'DELETE'}); fetchRecetas(); }
+        }
+    </script>
+</body>
+</html>

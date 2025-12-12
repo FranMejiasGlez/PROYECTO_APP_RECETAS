@@ -1,125 +1,90 @@
-const { connect } = require("../db");
-const { ObjectId, Int32 } = require("mongodb");
+// controllers/recetasController.js
+const recetaService = require('../services/recetasServices'); // Asegúrate que la ruta sea correcta
 
-// ======================================================
-// GET - OBTENER TODAS LAS RECETAS
-// ======================================================
 exports.obtenerTodos = async (req, res) => {
   try {
-    const db = await connect();
-    const recetas = await db.collection("recetas").find().toArray();
-    res.json(recetas);
+    const recetas = await recetaService.obtenerTodasLasRecetas();
+    res.status(200).json(recetas);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error al obtener recetas" });
+    res.status(500).json({ error: error.message });
   }
 };
 
-// ======================================================
-// GET - OBTENER UNA RECETA POR ID
-// ======================================================
 exports.obtenerPorId = async (req, res) => {
   try {
-    const db = await connect();
-
-    const receta = await db
-      .collection("recetas")
-      .findOne({ _id: new ObjectId(req.params.id) });
-
-    receta
-      ? res.json(receta)
-      : res.status(404).json({ mensaje: "No encontrado" });
-
+    const receta = await recetaService.obtenerRecetaPorId(req.params.id);
+    if (!receta) {
+      return res.status(404).json({ msg: 'Receta no encontrada' });
+    }
+    res.status(200).json(receta);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error al obtener receta" });
+    res.status(500).json({ error: error.message });
   }
 };
 
-// ======================================================
-// POST - CREAR UNA RECETA (ADAPTADO AL SCHEMA)
-// ======================================================
 exports.crear = async (req, res) => {
   try {
-    const db = await connect();
-    const raw = req.body;
-
-    const receta = {
-      _id: new ObjectId(),
-      nombre: raw.nombre,
-      comensales: new Int32(raw.comensales),  // int
-      dificultad: String(raw.dificultad),     // string (schema lo exige)
-      categoria: raw.categoria,               // obligatorio
-      tiempo: raw.tiempo,
-      ingredientes: Array.isArray(raw.ingredientes) ? raw.ingredientes : [],
-      instrucciones: Array.isArray(raw.instrucciones) ? raw.instrucciones : []
-    };
-
-    const result = await db.collection("recetas").insertOne(receta);
-
-    res.status(201).json({
-      mensaje: "Receta creada",
-      id: result.insertedId
-    });
+    // Aquí confiamos en que el Validator ya filtró los datos malos.
+    // Simplemente llamamos al servicio.
+    const nuevaReceta = await recetaService.crearReceta(req.body, req.files);
+    res.status(201).json(nuevaReceta);
 
   } catch (error) {
-    console.error(
-      "SCHEMA VALIDATION ERROR:",
-      JSON.stringify(error.errInfo, null, 2)
-    );
-    res.status(500).json({ mensaje: "Error al crear receta", detalle: error.errInfo });
+    // Este catch solo saltará si:
+    // 1. Se cae la base de datos.
+    // 2. El Validator dejó pasar algo que Mongoose rechazó (nuestra "segunda barrera").
+    console.error(error); 
+    res.status(400).json({ msg: 'Error al procesar la receta', error: error.message });
   }
 };
 
-// ======================================================
-// PUT - ACTUALIZAR RECETA
-// ======================================================
 exports.actualizar = async (req, res) => {
   try {
-    const db = await connect();
-
-    const result = await db.collection("recetas").findOneAndUpdate(
-      { _id: new ObjectId(req.params.id) },
-      { $set: req.body },
-      {
-        returnNewDocument: true,
-        //returnDocument: "after",   // devuelve el documento actualizado
-        //returnOriginal: false      // compatibilidad con versiones antiguas
-      }
-    );
-
-    //console.log('MongoDB Update Result:', result);
-
-    if (!result) {
-      return res.status(404).json({ mensaje: "No encontrado" });
+    const recetaActualizada = await recetaService.actualizarReceta(req.params.id, req.body, req.files);
+    if (!recetaActualizada) {
+      return res.status(404).json({ msg: 'Receta no encontrada' });
     }
-
-    res.json(result);
-
+    res.status(200).json(recetaActualizada);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ mensaje: "Error al actualizar receta" });
+    res.status(400).json({ error: error.message });
   }
 };
 
-
-// ======================================================
-// DELETE - ELIMINAR RECETA
-// ======================================================
 exports.eliminar = async (req, res) => {
   try {
-    const db = await connect();
+    const recetaEliminada = await recetaService.eliminarReceta(req.params.id);
+    if (!recetaEliminada) {
+      return res.status(404).json({ msg: 'Receta no encontrada' });
+    }
+    res.status(200).json({ msg: 'Receta eliminada correctamente' });
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
 
-    const resultado = await db
-      .collection("recetas")
-      .deleteOne({ _id: new ObjectId(req.params.id) });
+exports.valorar = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { puntuacion, user } = req.body;
 
-    resultado.deletedCount === 0
-      ? res.status(404).json({ mensaje: "No encontrado" })
-      : res.json({ mensaje: "Eliminado correctamente" });
+    // Validación básica
+    if (!puntuacion || puntuacion < 1 || puntuacion > 5) {
+      return res.status(400).json({ msg: 'La puntuación debe ser un número entre 1 y 5' });
+    }
+    if (!user) {
+      return res.status(400).json({ msg: 'Se requiere un usuario para votar' });
+    }
 
+    // Llamamos al servicio
+    const recetaActualizada = await recetaService.valorarReceta(id, user, puntuacion);
+
+    if (!recetaActualizada) {
+      return res.status(404).json({ msg: 'Receta no encontrada' });
+    }
+
+    res.status(200).json(recetaActualizada);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ mensaje: "Error al eliminar receta" });
+    res.status(500).json({ error: error.message });
   }
 };
