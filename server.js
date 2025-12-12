@@ -13,7 +13,7 @@ const comentariosRoutes = require("./routes/comentariosRoutes");
 app.use(cors());
 app.use(express.json());
 
-// RUTA PRINCIPAL DE LA API
+// --- DEFINIR RUTAS (ENDPOINTS) ---
 app.use("/api/recetas", recetasRoutes);
 app.use("/api/comentarios", comentariosRoutes);
 app.use('/img', express.static('img'));
