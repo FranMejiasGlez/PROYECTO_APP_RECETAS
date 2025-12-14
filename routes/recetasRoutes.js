@@ -6,7 +6,10 @@ const recetasController = require('../controllers/recetasController');
 const upload = require('../middlewares/upload'); 
 //Importar el Validador (¡ESTA ES LA LÍNEA QUE TE FALTA!)
 const { validatorCrearReceta } = require('../validators/recetaValidator');
+const auth = require('../middleware/auth');
 
+router.use(auth);
+//Rutas
 router.get('/', recetasController.obtenerTodos);
 
 router.get('/top', recetasController.obtenerMejorValoradas); 

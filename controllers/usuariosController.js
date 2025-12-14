@@ -20,6 +20,7 @@ exports.registrar = async (req, res) => {
 };
 
 // Login (Simple)
+const jwt = require('jsonwebtoken'); // <--- Añade esto arriba del archivo
 exports.login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -29,7 +30,23 @@ exports.login = async (req, res) => {
       return res.status(401).json({ msg: 'Credenciales inválidas' });
     }
 
-    res.status(200).json(usuario);
+    // --- GENERACIÓN DEL TOKEN (Nueva lógica) ---
+    const token = jwt.sign(
+      { 
+        id_user: usuario._id, 
+        nombreUser: usuario.username, // Usamos username que genera tu service
+        email: usuario.email 
+      },
+      process.env.JWT_SECRET,
+      { expiresIn: '1h' }
+    );
+
+    // Devolvemos el usuario Y el token inicial
+    res.status(200).json({
+      token: token,
+      usuario: usuario
+    });
+
   } catch (error) {
     res.status(500).json({ error: error.message });
   }
