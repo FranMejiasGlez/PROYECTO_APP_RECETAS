@@ -1,4 +1,8 @@
 const Usuario = require('../models/usuarioModelo');
+const fs = require('fs');
+const path = require('path');
+const sharp = require('sharp');
+const bcrypt = require('bcryptjs'); // ✅ Importar bcryptjs
 
 // Función auxiliar para generar username aleatorio
 const generarUsername = () => {
@@ -13,21 +17,35 @@ exports.registrarUsuario = async (datos) => {
     throw new Error('El correo electrónico ya está registrado');
   }
 
-  // 2. Generamos username aleatorio si no viene (aunque por tu regla, siempre se genera)
-  let username = generarUsername();
-  
-  // Pequeña validación por si el random choca con uno existente (raro pero posible)
-  let existeUser = await Usuario.findOne({ username });
-  while (existeUser) {
+  // 2. Gestionamos el username
+  let username = datos.username;
+
+  if (username) {
+    // Si nos pasan un username, verificamos que no exista
+    const existeUser = await Usuario.findOne({ username });
+    if (existeUser) {
+      throw new Error('El nombre de usuario ya está en uso');
+    }
+  } else {
+    // Si no viene, generamos uno aleatorio
     username = generarUsername();
-    existeUser = await Usuario.findOne({ username });
+    let existeUser = await Usuario.findOne({ username });
+    while (existeUser) {
+      username = generarUsername();
+      existeUser = await Usuario.findOne({ username });
+    }
   }
 
-  // 3. Creamos el usuario
+  // 3. Hashear contraseña
+  const salt = await bcrypt.genSalt(10);
+  const hashedPassword = await bcrypt.hash(datos.password, salt);
+
+  // 4. Creamos el usuario
   const nuevoUsuario = new Usuario({
     ...datos,
     username: username,
-    recetas_guardadas: [] // Inicializamos vacío
+    password: hashedPassword, // ✅ Guardamos hash
+    recetas_guardadas: []
   });
 
   return await nuevoUsuario.save();
@@ -36,22 +54,88 @@ exports.registrarUsuario = async (datos) => {
 // Obtener usuario por ID
 exports.obtenerUsuarioPorId = async (id) => {
   return await Usuario.findById(id)
-    .populate('recetas_guardadas') // Trae las recetas completas
-    .populate('siguiendo', 'username profile_image') // Trae solo nombre y foto de a quien sigo
-    .populate('seguidores', 'username profile_image'); // Trae solo nombre y foto de mis seguidores
+    .populate('recetas_guardadas')
+    .populate('siguiendo', 'username profile_image')
+    .populate('seguidores', 'username profile_image');
 };
 
-// Login simple (Buscar por email y password)
-// NOTA: En un entorno real, aquí compararíamos hashes (bcrypt), no texto plano.
-exports.loginUsuario = async (email, password) => {
-  const usuario = await Usuario.findOne({ email, password });
-  return usuario;
+// Obtener usuario por Username
+exports.buscarUsuarioPorUsername = async (username) => {
+  return await Usuario.findOne({ username: username })
+    .select('_id username profile_image bio');
 };
 
-// Actualizar perfil (Bio, Username, Email, Foto)
-exports.actualizarUsuario = async (id, datos) => {
-  // Si intenta cambiar username o email, habría que validar que no existan ya
-  // Por simplicidad, asumimos que el frontend o mongo (unique constraint) manejará el error de duplicado
+// Login (Email o Username)
+exports.loginUsuario = async (identifier, password) => {
+  // 1. Buscamos usuario
+  const usuario = await Usuario.findOne({
+    $or: [{ email: identifier }, { username: identifier }]
+  });
+
+  if (!usuario) return null;
+
+  // 2. Verificar contraseña (BCRYPT)
+  const isMatch = await bcrypt.compare(password, usuario.password);
+
+  if (isMatch) {
+    return usuario;
+  }
+
+  // 3. FALLBACK: Verificar texto plano (Legacy Migración)
+  // Si bcrypt falla, puede ser porque es un usuario viejo con pass en texto plano
+  if (usuario.password === password) {
+    console.log(`⚠️ Migrando usuario ${usuario.username} a bcrypt...`);
+
+    // Si coincide en texto plano, la hasheamos y guardamos
+    const salt = await bcrypt.genSalt(10);
+    usuario.password = await bcrypt.hash(password, salt);
+    await usuario.save();
+
+    return usuario;
+  }
+
+  return null;
+};
+
+// Actualizar perfil
+exports.actualizarUsuario = async (id, datos, archivo) => {
+  // -> PROCESAR CONTRASEÑA NUEVA
+  if (datos.password) {
+    const salt = await bcrypt.genSalt(10);
+    datos.password = await bcrypt.hash(datos.password, salt);
+  }
+
+  // -> PROCESAR IMAGEN NUEVA
+  if (archivo) {
+    // 1. Verificar si tenía foto anterior para borrarla
+    const usuarioActual = await Usuario.findById(id);
+    if (usuarioActual && usuarioActual.profile_image) {
+      if (usuarioActual.profile_image.startsWith('img/')) {
+        const rutaAbsoluta = path.join(__dirname, '../', usuarioActual.profile_image);
+        fs.unlink(rutaAbsoluta, (err) => {
+          if (err && err.code !== 'ENOENT') console.error("Error borrando foto perfil antigua:", err);
+        });
+      }
+    }
+
+    // 2. Procesar (Sharp) y Guardar nueva
+    const nombreArchivo = `user_${id}_${Date.now()}.jpeg`;
+    const rutaArchivo = path.join('img', nombreArchivo);
+
+    try {
+      await sharp(archivo.buffer)
+        .resize(400, 400, { fit: 'cover' })
+        .toFormat('jpeg')
+        .jpeg({ quality: 80 })
+        .toFile(rutaArchivo);
+
+      datos.profile_image = rutaArchivo.replace(/\\/g, '/');
+    } catch (error) {
+      console.error("Error procesando imagen perfil:", error);
+      throw new Error("Error al procesar la imagen de perfil");
+    }
+  }
+
   return await Usuario.findByIdAndUpdate(id, datos, { new: true, runValidators: true });
 };
 
@@ -92,7 +176,7 @@ exports.toggleSeguimiento = async (idUsuarioOrigen, idUsuarioDestino) => {
 
   if (estaSiguiendo) {
     // --- UNFOLLOW (Dejar de seguir) ---
-    
+
     // Quitar de mis "siguiendo"
     usuarioOrigen.siguiendo.pull(idUsuarioDestino);
     // Quitar de sus "seguidores"
@@ -100,7 +184,7 @@ exports.toggleSeguimiento = async (idUsuarioOrigen, idUsuarioDestino) => {
 
   } else {
     // --- FOLLOW (Seguir) ---
-    
+
     // Añadir a mis "siguiendo"
     usuarioOrigen.siguiendo.push(idUsuarioDestino);
     // Añadir a sus "seguidores"
@@ -112,7 +196,7 @@ exports.toggleSeguimiento = async (idUsuarioOrigen, idUsuarioDestino) => {
   await Promise.all([usuarioOrigen.save(), usuarioDestino.save()]);
 
   // Retornamos el estado actual para que el frontend sepa si ahora lo sigue o no
-  return { 
+  return {
     siguiendo: !estaSiguiendo, // true si ahora lo sigue, false si dejó de seguir
     totalSeguidoresDestino: usuarioDestino.seguidores.length,
     totalSiguiendoOrigen: usuarioOrigen.siguiendo.length

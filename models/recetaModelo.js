@@ -7,6 +7,12 @@ const recetaSchema = new mongoose.Schema({
     required: [true, 'El nombre de la receta es obligatorio'],
     trim: true
   },
+  descripcion: {
+    type: String,
+    required: false,
+    trim: true,
+    maxLength: 500
+  },
   comensales: {
     type: Number,
     required: true,
@@ -32,7 +38,7 @@ const recetaSchema = new mongoose.Schema({
     type: [String],
     required: true,
     validate: {
-      validator: function(v) { return v && v.length > 0; },
+      validator: function (v) { return v && v.length > 0; },
       message: 'La receta debe tener al menos un ingrediente'
     }
   },
@@ -77,7 +83,7 @@ const recetaSchema = new mongoose.Schema({
 });
 
 // --- EL CÁLCULO AUTOMÁTICO ---
-recetaSchema.pre('save', async function() {
+recetaSchema.pre('save', async function () {
   // 1. Solo calculamos si las valoraciones han cambiado
   if (!this.isModified('valoraciones')) return;
 
@@ -92,7 +98,7 @@ recetaSchema.pre('save', async function() {
   } else {
     this.promedio = 0;
   }
-  
+
   // NO llamamos a next(). Al ser async, Mongoose sabe que cuando acaba la función, puede continuar.
 });
 // Forzamos que la colección se llame 'recetas'

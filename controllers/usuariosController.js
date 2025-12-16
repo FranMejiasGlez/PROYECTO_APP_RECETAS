@@ -13,18 +13,27 @@ exports.registrar = async (req, res) => {
   } catch (error) {
     // Manejo de error de duplicados de Mongo (E11000)
     if (error.message.includes('El correo electrónico ya está registrado') || error.code === 11000) {
-        return res.status(400).json({ msg: 'El correo ya existe' });
+      return res.status(400).json({ msg: 'El correo ya existe' });
     }
     res.status(500).json({ error: error.message });
   }
 };
 
-// Login (Simple)
+// Login (Email o Username)
 exports.login = async (req, res) => {
   try {
-    const { email, password } = req.body;
-    const usuario = await usuarioService.loginUsuario(email, password);
-    
+    // Aceptamos "email" o "username" o un campo genérico "identificador"
+    const { email, username, password, identificador } = req.body;
+
+    // Determinamos cuál es el identificador (prioridad: identificador > email > username)
+    const loginIdentifier = identificador || email || username;
+
+    if (!loginIdentifier || !password) {
+      return res.status(400).json({ msg: 'Usuario/Email y contraseña son obligatorios' });
+    }
+
+    const usuario = await usuarioService.loginUsuario(loginIdentifier, password);
+
     if (!usuario) {
       return res.status(401).json({ msg: 'Credenciales inválidas' });
     }
@@ -50,11 +59,27 @@ exports.perfil = async (req, res) => {
 exports.actualizar = async (req, res) => {
   try {
     // Evitar que actualicen recetas_guardadas por esta ruta
-    delete req.body.recetas_guardadas; 
-    
-    const usuario = await usuarioService.actualizarUsuario(req.params.id, req.body);
+    delete req.body.recetas_guardadas;
+
+    const usuario = await usuarioService.actualizarUsuario(req.params.id, req.body, req.file);
     if (!usuario) return res.status(404).json({ msg: 'Usuario no encontrado' });
-    
+
+    res.status(200).json(usuario);
+  } catch (error) {
+    res.status(500).json({ error: error.message });
+  }
+};
+
+// Buscar por Username
+exports.buscarPorUsername = async (req, res) => {
+  try {
+    const { username } = req.params;
+    const usuario = await usuarioService.buscarUsuarioPorUsername(username);
+
+    if (!usuario) {
+      return res.status(404).json({ msg: 'Usuario no encontrado' });
+    }
+
     res.status(200).json(usuario);
   } catch (error) {
     res.status(500).json({ error: error.message });
@@ -70,9 +95,9 @@ exports.guardarReceta = async (req, res) => {
     if (!recetaId) return res.status(400).json({ msg: 'Falta el ID de la receta' });
 
     const usuario = await usuarioService.toggleRecetaGuardada(id, recetaId);
-    res.status(200).json({ 
-      msg: 'Lista de guardados actualizada', 
-      guardadas: usuario.recetas_guardadas 
+    res.status(200).json({
+      msg: 'Lista de guardados actualizada',
+      guardadas: usuario.recetas_guardadas
     });
   } catch (error) {
     res.status(500).json({ error: error.message });
