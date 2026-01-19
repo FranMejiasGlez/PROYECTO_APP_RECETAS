@@ -102,9 +102,9 @@ exports.obtenerMejorValoradas = async (req, res) => {
   try {
     // CONSTANTES PARA EL ALGORITMO BAYESIANO
     // M: Número de votos "fantasma" que añadimos para suavizar
-    const M = 5; 
+    const M = 5;
     // C: La nota media global (asumimos 3.0 para ser neutrales)
-    const C = 3.0; 
+    const C = 3.0;
 
     const recetas = await require('../models/recetaModelo').aggregate([
       {
@@ -117,7 +117,7 @@ exports.obtenerMejorValoradas = async (req, res) => {
               then: 0, // Score es 0
               else: {
                 $divide: [
-                  { 
+                  {
                     $add: [
                       { $multiply: ["$promedio", "$cantidadVotos"] }, // P * V
                       { $multiply: [C, M] } // C * M
@@ -145,26 +145,7 @@ exports.obtenerMejorValoradas = async (req, res) => {
 // ==========================================
 exports.obtenerEstadisticasGuardados = async (req, res) => {
   try {
-    const stats = await require('../models/usuarioModelo').aggregate([
-      // 1. "Desenrollar" el array para tener un documento por cada receta guardada
-      { $unwind: "$recetas_guardadas" },
-      // 2. Agrupar por ID de receta y contar
-      {
-        $group: {
-          _id: "$recetas_guardadas",
-          count: { $sum: 1 }
-        }
-      }
-    ]);
-
-    // stats será algo como: [{ _id: "ID_RECETA_1", count: 5 }, { _id: "ID_RECETA_2", count: 10 }]
-    
-    // Transformamos a un objeto o mapa para fácil acceso en frontend: { "ID_RECETA": 5, ... }
-    const mapaGuardados = {};
-    stats.forEach(item => {
-      mapaGuardados[item._id] = item.count;
-    });
-
+    const mapaGuardados = await recetaService.obtenerEstadisticasGuardados();
     res.status(200).json(mapaGuardados);
   } catch (error) {
     console.error("Error obteniendo estadísticas guardados:", error);

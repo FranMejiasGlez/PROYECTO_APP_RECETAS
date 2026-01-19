@@ -176,3 +176,29 @@ exports.valorarReceta = async (id, idUsuario, puntuacion) => {
   // 3. Guardamos (Esto dispara el 'pre save' del modelo automáticamente)
   return await receta.save();
 };
+
+// Obtener estadísticas de guardados (agregación)
+exports.obtenerEstadisticasGuardados = async () => {
+  // Nota: Esto requiere acceso al modelo de Usuario
+  const Usuario = require('../models/usuarioModelo');
+
+  const stats = await Usuario.aggregate([
+    // 1. "Desenrollar" el array para tener un documento por cada receta guardada
+    { $unwind: "$recetas_guardadas" },
+    // 2. Agrupar por ID de receta y contar
+    {
+      $group: {
+        _id: "$recetas_guardadas",
+        count: { $sum: 1 }
+      }
+    }
+  ]);
+
+  // Transformamos a un objeto o mapa para fácil acceso: { "ID_RECETA": 5, ... }
+  const mapaGuardados = {};
+  stats.forEach(item => {
+    mapaGuardados[item._id] = item.count;
+  });
+
+  return mapaGuardados;
+};
