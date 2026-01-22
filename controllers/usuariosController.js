@@ -2,6 +2,8 @@ const usuarioService = require('../services/usuariosServices');
 
 // Registro
 exports.registrar = async (req, res) => {
+  console.log('--- NUEVO INTENTO DE REGISTRO ---');
+  console.log('Cuerpo de la petición:', JSON.stringify(req.body, null, 2));
   try {
     const { email, password } = req.body;
     if (!email || !password) {
